@@ -16,12 +16,15 @@ export class Configuration {
         logLevel: process.env.LOG_LEVEL,
         morganFormat: 'dev',
         port: '3000',
-        bodyLimit: '50mb',
+        bodyLimit: process.env.BODY_LIMIT,
       },
       oidc: {
-        clientId: process.env.ID,
-        clientSecret: process.env.SECRET,
-        discovery: process.env.DISCOVERY,
+        jwksUrl: process.env.JWKS_URL,
+      },
+      cdogs: {
+        clientID: process.env.CDOGS_CLIENT_ID,
+        clientSecret: process.env.CDOGS_CLIENT_SECRET,
+        tokenEndpoint: process.env.CDOGS_TOKEN_ENDPOINT,
       },
     });
   }
