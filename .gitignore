@@ -1,0 +1,10 @@
+/api/dist/
+/api/logs/
+/api/node_modules
+/.idea/
+/*.iml
+/*.log
+/api/*.log
+/*.http
+/api/*.http
+/api/src/config/*.json
