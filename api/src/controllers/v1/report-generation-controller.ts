@@ -1,32 +1,38 @@
 import express, {Request, Response} from 'express';
-import logger from '../../components/logger';
 import {AuthHandler} from '../../middleware/auth-handler';
+import {Report} from '../../struct/v1/report';
 import {constants} from 'http2';
+import logger from '../../components/logger';
+import {plainToClass} from 'class-transformer';
+import {validate, ValidationError} from 'class-validator';
+import {ReportGenerationService} from '../../service/report-generation-service';
+import {SCOPE} from '../../config/scope';
 
 export class ReportGenerationController {
   private readonly _router: any;
 
   public constructor() {
     this._router = express.Router();
-    this._router.get('/v1/reports', AuthHandler.validateScope('READ_POSSIBLE_MATCH'), this.getReportHandler);
-    this._router.post('/v1/reports', AuthHandler.validateScope('READ_POSSIBLE_MATCH'), this.postReportHandler);
+    this._router.post('/v1/reports', AuthHandler.validateScope(SCOPE.GENERATE_PEN_REPORT), this.generateReport);
   }
 
-  public async getReportHandler(req: Request, res: Response): Promise<void> {
-
-    logger.info('request params is', req.params);
-    try {
-      const token = await AuthHandler.getCDOGsApiToken();
-      logger.info('token is ', token);
-    } catch (e) {
-      res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+  public async generateReport(req: Request, res: Response): Promise<void> {
+    const report: Report = plainToClass(Report, req.body);
+    logger.silly('Received report', report);
+    const validationErrors: ValidationError[] = await validate(report);
+    if (validationErrors?.length > 0) {
+      let errorTexts = [];
+      for (const errorItem of validationErrors) {
+        errorTexts = errorTexts.concat(errorItem?.constraints);
+      }
+      res.status(constants.HTTP_STATUS_BAD_REQUEST).send(errorTexts);
+      return;
+    } else {
+      const generatedFile: string = await ReportGenerationService.generateBatchResponseReport(report);
+      res.setHeader('Content-disposition', 'attachment; filename=' + report.reportName);
+      res.setHeader('Content-type', report.reportExtension);
+      res.status(constants.HTTP_STATUS_OK).send(Buffer.from(generatedFile, 'base64'));
     }
-    res.status(200).json({message: 'got it'});
-  }
-
-  public postReportHandler(req: Request, res: Response): void {
-    logger.info('request params is', req.params);
-    res.status(200).json({message: 'got it'});
   }
 
   public get Router(): any {

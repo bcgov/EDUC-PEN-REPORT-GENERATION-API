@@ -5,7 +5,6 @@ export class ErrorHandlerMiddleware {
   public static handleJSONParsingErrors(err: any, req: Request, res: Response, next: NextFunction): any {
     if (err) {
       let errorMessage = 'Invalid JSON provided.';
-
       if (err instanceof SyntaxError) {
         errorMessage = 'The JSON provided is malformed and cannot be processed.';
       } else if (err.hasOwnProperty('type') && err.type === 'entity.too.large') {
