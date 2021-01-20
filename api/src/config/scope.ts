@@ -1,0 +1,3 @@
+export const SCOPE = {
+  GENERATE_PEN_REPORT: 'GENERATE_PEN_REPORT',
+};

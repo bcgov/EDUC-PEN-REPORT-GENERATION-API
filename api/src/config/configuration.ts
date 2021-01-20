@@ -25,14 +25,23 @@ export class Configuration {
         clientID: process.env.CDOGS_CLIENT_ID,
         clientSecret: process.env.CDOGS_CLIENT_SECRET,
         tokenEndpoint: process.env.CDOGS_TOKEN_ENDPOINT,
+        baseUrl: process.env.CDOGS_BASE_URL,
+      },
+      report_templates: {
+        batch_response: process.env.BATCH_RESPONSE_TEMPLATE,
+      },
+      redis: {
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT,
+      },
+      messaging: {
+        natsUrl: process.env.NATS_URL,
       },
     });
   }
 
   public static getConfig(key: string): any {
-    if (undefined === Configuration._nconf) {
-      new Configuration();
-    }
     return Configuration._nconf.get(key);
   }
 }
+new Configuration();

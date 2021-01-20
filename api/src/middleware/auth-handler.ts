@@ -7,23 +7,17 @@ import {FlattenedJWSInput, JWTVerifyResult} from 'jose/webcrypto/types';
 import logger from '../components/logger';
 import {CONFIG_ELEMENT} from '../config/config-element';
 import axios, {AxiosResponse} from 'axios';
-import safeStringify from 'fast-safe-stringify';
 import qs from 'querystring';
 
 export class AuthHandler {
 
-  private static isBootStrapped: boolean;
   private static _JWKS: GetKeyFunction<JWSHeaderParameters, FlattenedJWSInput>;
 
-  private constructor() {
-    if (!AuthHandler.isBootStrapped) {
-      AuthHandler._JWKS = createRemoteJWKSet(new URL(Configuration.getConfig(CONFIG_ELEMENT.OIDC_JWKS_URL)));
-      AuthHandler.isBootStrapped = true;
-    }
+  public constructor() {
+    AuthHandler._JWKS = createRemoteJWKSet(new URL(Configuration.getConfig(CONFIG_ELEMENT.OIDC_JWKS_URL)));
   }
 
   public static validateScope(scope: string): (req: Request, res: Response, next: NextFunction) => Promise<void> {
-    new AuthHandler(); // instantiate here...
     return async (req: Request, res: Response, next: NextFunction) => {
       if (req?.headers.authorization) {
         const tokenString = req.headers.authorization.split(' ')[1];
@@ -66,11 +60,13 @@ export class AuthHandler {
           },
         }
       );
-      logger.silly('getCDOGsApiToken Res', safeStringify(response.data));
-      return response.data.access_token;
+      logger.silly('getCDOGsApiToken Res', response.data);
+      return response?.data?.access_token;
     } catch (e) {
       logger.error(e);
       throw e;
     }
   }
 }
+
+new AuthHandler();
