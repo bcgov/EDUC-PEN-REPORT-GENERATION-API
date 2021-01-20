@@ -9,8 +9,8 @@ pipeline{
           TOOLS = "${NAMESPACE}-tools"
           DEV = "${NAMESPACE}-dev"
 
-          APP_NAME = 'PEN-REPORT-GENERATION-API'
-          REPO_NAME = "EDUC-${APP_NAME}"
+          APP_NAME = 'pen-report-generation-api'
+          REPO_NAME = "educ-${APP_NAME}"
           OWNER = 'bcgov'
           JOB_NAME = 'main'
           TAG = 'latest'
