@@ -11,18 +11,23 @@ export class ReportGenerationService {
    * during application startup , remove template hashes from REDIS, call CDOGS API and upload all templates and store there hash keys
    */
   public constructor() {
-    Object.values(REPORT_TYPE).forEach(async (reportTypeKey) => {
-      try {
-        await ReportGenerationService.removeTemplateHashFromRedis(reportTypeKey);
+    Object.values(REPORT_TYPE).forEach(reportTypeKey => {
+      ReportGenerationService.removeTemplateHashFromRedis(reportTypeKey).then(() => {
         const templatePath: string = path.join(__dirname, `../templates/${reportTypeKey}.docx`);
         logger.info('template path is ', templatePath);
-        const templateHash = await CdogsApiService.uploadTemplate(templatePath);
-        if (templateHash) {
-          await ReportGenerationService.saveTemplateHashIntoRedis(reportTypeKey, templateHash);
-        }
-      } catch (e) {
+        CdogsApiService.uploadTemplate(templatePath).then((templateHash: string) => {
+          ReportGenerationService.saveTemplateHashIntoRedis(reportTypeKey, templateHash).then(() => {
+            logger.info(`report template for ${{reportTypeKey}} is successfully stored in redis.`);
+          }).catch((e) => {
+            logger.error(e);
+          });
+        }).catch((e) => {
+          logger.error(e);
+        });
+      }).catch((e) => {
         logger.error(e);
-      }
+      });
+
     });
   }
 
