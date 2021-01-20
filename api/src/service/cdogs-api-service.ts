@@ -24,7 +24,7 @@ export class CdogsApiService {
         const bodyFormData = new FormData();
         bodyFormData.append('template', contents);
         const response: AxiosResponse = await axios
-          .post(`${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}'/api/v2/template`, bodyFormData, config);
+          .post(`${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template`, bodyFormData, config);
         if (response?.status === constants.HTTP_STATUS_OK) {
           templateHash = response?.headers['X-Template-Hash'];
         }
