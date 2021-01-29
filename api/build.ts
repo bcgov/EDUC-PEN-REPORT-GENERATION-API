@@ -15,6 +15,7 @@ logger.timestamp = false;
   try {
     // Remove current build
     await remove('./dist/');
+    await copy('./src/templates','./dist/src/templates');
     await exec('tsc --build tsconfig.prod.json', './');
   } catch (err) {
     logger.err(err);
@@ -30,14 +31,13 @@ function remove(loc: string): Promise<void> {
   });
 }
 
-/*
 function copy(src: string, dest: string): Promise<void> {
   return new Promise((res, rej) => {
     return fs.copy(src, dest, (err) => {
       return (!!err ? rej(err) : res());
     });
   });
-}*/
+}
 
 
 function exec(cmd: string, loc: string): Promise<void> {
