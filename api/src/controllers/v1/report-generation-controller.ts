@@ -28,7 +28,7 @@ export class ReportGenerationController {
       res.status(constants.HTTP_STATUS_BAD_REQUEST).send(errorTexts);
       return;
     } else {
-      const generatedFile: string = await ReportGenerationService.generateBatchResponseReport(report);
+      const generatedFile: string = await ReportGenerationService.instance.generateBatchResponseReport(report);
       res.setHeader('Content-disposition', 'attachment; filename=' + report.reportName);
       res.setHeader('Content-type', report.reportExtension);
       res.status(constants.HTTP_STATUS_OK).send(Buffer.from(generatedFile, 'base64'));
