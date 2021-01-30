@@ -20,7 +20,7 @@ export class ReportGenerationService {
         CdogsApiService.uploadTemplate(templatePath).then((templateHash: string) => {
           logger.info('got template hash from CDOGS API', templateHash);
           ReportGenerationService.saveTemplateHashIntoRedis(reportTypeKey, templateHash).then(() => {
-            logger.info(`report template for ${{reportTypeKey}} is successfully stored in redis.`);
+            logger.info(`report template for ${reportTypeKey} is successfully stored in redis.`);
           }).catch((e) => {
             logger.error(e);
           });

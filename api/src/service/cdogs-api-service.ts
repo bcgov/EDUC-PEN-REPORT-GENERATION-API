@@ -14,25 +14,28 @@ export class CdogsApiService {
     let templateHash = '';
     await retry(async () => {
       try {
-        const contents = fs.readFileSync(templatePath, {encoding: 'base64'});
+        const bodyFormData = new FormData();
+        bodyFormData.append('template', fs.createReadStream(templatePath, {encoding: 'base64'}));
         const cdogsApiToken = await AuthHandler.getCDOGsApiToken();
         const config: AxiosRequestConfig = {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            ...bodyFormData.getHeaders(),
             'Authorization': `Bearer ${cdogsApiToken}`,
           },
         };
-        const bodyFormData = new FormData();
-        bodyFormData.append('template', contents);
-        logger.info('contents are', contents);
-        const response: AxiosResponse = await axios
-          .post(`${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template`, bodyFormData, config);
+        const response: AxiosResponse = await axios.create(config).post(`${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template`, bodyFormData);
         if (response?.status === constants.HTTP_STATUS_OK) {
           templateHash = response?.headers['X-Template-Hash'];
         }
       } catch (e) {
-        logger.error(e);
-        throw e;
+        //CDOGS API will respond like this if same file is uploaded, API will catch that and return the template hash.
+        const detail: string = e?.response?.data?.detail;
+        if (detail && detail.includes('File already cached')) {
+          templateHash = detail.substring(27, detail.length - 2);
+        } else {
+          logger.error(e);
+          throw e;
+        }
       }
     }, {
       retries: 5,
