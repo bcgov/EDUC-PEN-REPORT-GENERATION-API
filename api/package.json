@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "This API will contain different report templates and generate reports utilising CDOGS API.",
   "repository": "https://github.com/bcgov/EDUC-PEN-REPORT-GENERATION-API",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "authors": [
     "EDUC-PEN-TEAM"
   ],
@@ -74,6 +74,7 @@
     "express-actuator": "^1.7.0",
     "express-async-errors": "^3.1.1",
     "express-status-monitor": "^1.3.3",
+    "form-data": "^3.0.0",
     "has-ansi": "^4.0.0",
     "helmet": "^4.3.1",
     "ioredis": "^4.19.4",

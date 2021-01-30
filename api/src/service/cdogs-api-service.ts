@@ -6,6 +6,7 @@ import {CONFIG_ELEMENT} from '../config/config-element';
 import logger from '../components/logger';
 import retry from 'async-retry';
 import {constants} from 'http2';
+import FormData from 'form-data';
 
 export class CdogsApiService {
 
