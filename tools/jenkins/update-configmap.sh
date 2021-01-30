@@ -61,12 +61,12 @@ FLB_CONFIG="[SERVICE]
 "
 
 echo Creating config map "$APP_NAME"-config-map
-oc create -n "$PEN_NAMESPACE"-"$envValue" configmap "$APP_NAME"-config-map --from-literal=TZ=$TZVALUE --from-literal=JWKS_URL="https://$SOAM_KC/auth/realms/$SOAM_KC_REALM_ID/protocol/openid-connect/certs" --from-literal=LOG_LEVEL=info --from-literal=REDIS_HOST=redis --from-literal=REDIS_PORT=6379 --from-literal=BODY_LIMIT="50MB"  --from-literal=NATS_URL="$NATS_URL"  ----from-literal=CDOGS_TOKEN_ENDPOINT="$CDOGS_TOKEN_ENDPOINT" --from-literal=CDOGS_CLIENT_SECRET="$CDOGS_CLIENT_SECRET" --from-literal=CDOGS_CLIENT_ID="$CDOGS_CLIENT_ID" --from-literal=CDOGS_BASE_URL="$CDOGS_BASE_URL" --dry-run -o yaml | oc apply -f -
+oc create -n "$PEN_NAMESPACE"-"$envValue" configmap "$APP_NAME"-config-map --from-literal=TZ=$TZVALUE --from-literal=JWKS_URL="https://$SOAM_KC/auth/realms/$SOAM_KC_REALM_ID/protocol/openid-connect/certs" --from-literal=LOG_LEVEL=info --from-literal=REDIS_HOST=redis --from-literal=REDIS_PORT=6379 --from-literal=BODY_LIMIT="50MB"  --from-literal=NATS_URL="$NATS_URL"  --from-literal=CDOGS_TOKEN_ENDPOINT="$CDOGS_TOKEN_ENDPOINT" --from-literal=CDOGS_CLIENT_SECRET="$CDOGS_CLIENT_SECRET" --from-literal=CDOGS_CLIENT_ID="$CDOGS_CLIENT_ID" --from-literal=CDOGS_BASE_URL="$CDOGS_BASE_URL" --dry-run -o yaml | oc apply -f -
 
 echo
-echo Setting environment variables for "$APP_NAME-$SOAM_KC_REALM_ID" application
+echo Setting environment variables for "$APP_NAME-main" application
 oc project "$PEN_NAMESPACE-$envValue"
-oc set env --from=configmap/"$APP_NAME"-config-map dc/"$APP_NAME-$SOAM_KC_REALM_ID"
+oc set env --from=configmap/"$APP_NAME"-config-map dc/"$APP_NAME-main"
 
 echo Creating config map "$APP_NAME-flb-sc-config-map"
 oc create -n "$PEN_NAMESPACE-$envValue" configmap "$APP_NAME"-flb-sc-config-map --from-literal=fluent-bit.conf="$FLB_CONFIG" --dry-run -o yaml | oc apply -f -

@@ -12,7 +12,9 @@ export class NatsClient {
     const natsOptions: NatsConnectionOptions = {
       url: server,
       servers: [server],
-      maxReconnectAttempts: -1, // forever retry
+      maxReconnectAttempts: 60,
+      name: 'PEN-REPORT-GENERATION-API',
+      reconnectTimeWait: 5000, // wait 5 seconds before retrying...
       waitOnFirstConnect: true,
       pingInterval: 2000,
     };

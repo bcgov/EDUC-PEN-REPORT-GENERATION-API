@@ -24,6 +24,7 @@ export class CdogsApiService {
             'Authorization': `Bearer ${cdogsApiToken}`,
           },
         };
+
         const response: AxiosResponse = await axios.create(config)
           .post(`${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template`, bodyFormData);
 

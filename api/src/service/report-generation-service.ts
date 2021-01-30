@@ -79,6 +79,7 @@ export class ReportGenerationService {
     }
     const result: AxiosResponse<string> = await CdogsApiService.generateReport(hashFromRedis, report);
     return result?.data;
+
   }
 
   public static get instance(): ReportGenerationService {
