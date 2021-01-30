@@ -6,6 +6,8 @@ import {CONFIG_ELEMENT} from '../config/config-element';
 import logger from '../components/logger';
 import retry from 'async-retry';
 import {constants} from 'http2';
+import FormData from 'form-data';
+import {Report} from '../struct/v1/report';
 
 export class CdogsApiService {
 
@@ -13,28 +15,85 @@ export class CdogsApiService {
     let templateHash = '';
     await retry(async () => {
       try {
-        const contents = fs.readFileSync(templatePath, {encoding: 'base64'});
+        const bodyFormData = new FormData();
+        bodyFormData.append('template', fs.createReadStream(templatePath, {encoding: 'base64'}));
         const cdogsApiToken = await AuthHandler.getCDOGsApiToken();
         const config: AxiosRequestConfig = {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            ...bodyFormData.getHeaders(),
             'Authorization': `Bearer ${cdogsApiToken}`,
           },
         };
-        const bodyFormData = new FormData();
-        bodyFormData.append('template', contents);
-        const response: AxiosResponse = await axios
-          .post(`${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template`, bodyFormData, config);
+        const response: AxiosResponse = await axios.create(config)
+          .post(`${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template`, bodyFormData);
+
         if (response?.status === constants.HTTP_STATUS_OK) {
           templateHash = response?.headers['X-Template-Hash'];
         }
       } catch (e) {
-        logger.error(e);
-        throw e;
+        // CDOGS API will respond like this if same file is uploaded, API will catch that and return the template hash.
+        const detail: string = e?.response?.data?.detail;
+        if (detail && detail.includes('File already cached')) {
+          templateHash = detail.substring(27, detail.length - 2);
+        } else {
+          logger.error(e);
+          throw e;
+        }
       }
     }, {
       retries: 5,
     });
     return templateHash;
+  }
+
+  public static async isReportTemplateCachedInCdogs(hashFromRedis: string): Promise<boolean> {
+    await retry(async () => {
+      const cdogsApiToken = await AuthHandler.getCDOGsApiToken();
+      const config: AxiosRequestConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${cdogsApiToken}`,
+        },
+      };
+      const response: AxiosResponse = await axios.create(config)
+        .get(`${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template/${hashFromRedis}`);
+
+      return response?.status === constants.HTTP_STATUS_OK;
+    }, {
+      retries: 5,
+    });
+    return false;
+  }
+
+  public static async generateReport(templateHash: string, report: Report, formatter?: string): Promise<AxiosResponse<string>> {
+    let response: AxiosResponse<string> = undefined;
+    await retry(async () => {
+      const cdogsApiToken = await AuthHandler.getCDOGsApiToken();
+      const config: AxiosRequestConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${cdogsApiToken}`,
+        },
+      };
+      const reportBody: Record<string, unknown> = {
+        data: {
+          ...report.data,
+        },
+        options: {
+          'cacheReport': false,
+          'convertTo': report.reportExtension.toString(),
+          'overwrite': true,
+
+        },
+      };
+      if (!!formatter) {
+        reportBody.formatters = formatter;
+      }
+      response = await axios.create(config)
+        .post(`${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template/${templateHash}/render`);
+    }, {
+      retries: 5,
+    });
+    return response;
   }
 }

@@ -6,6 +6,7 @@ import logger from './components/logger';
 import * as jsJoda from '@js-joda/core';
 import {CONFIG_ELEMENT} from './config/config-element';
 import {NatsClient} from './components/nats';
+import {ReportGenerationService} from './service/report-generation-service';
 // Add timestamp to log
 Object.defineProperty(log, 'heading', {
   get: () => {
@@ -32,6 +33,7 @@ class ReportGenerationApplication {
     this._httpServer.on('error', ReportGenerationApplication.onError);
     this._httpServer.on('listening', ReportGenerationApplication.onListening);
     new NatsClient(); // connect to NATS..
+    ReportGenerationService.instance.start();
   }
 
   public get httpServer(): Server {
