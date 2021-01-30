@@ -24,6 +24,7 @@ export class CdogsApiService {
         };
         const bodyFormData = new FormData();
         bodyFormData.append('template', contents);
+        logger.info('contents are', contents);
         const response: AxiosResponse = await axios
           .post(`${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template`, bodyFormData, config);
         if (response?.status === constants.HTTP_STATUS_OK) {
