@@ -80,7 +80,7 @@ export class ReportGenerationService {
       }
     }
     // const result: AxiosResponse<string> = await CdogsApiService.generateReportFromTemplateHash(hashFromRedis, report);
-    return await CdogsApiService.generateReport(templatePath, report);
+    return await CdogsApiService.generateReportWithInlineTemplate(templatePath, report);
   }
 
   public static get instance(): ReportGenerationService {
