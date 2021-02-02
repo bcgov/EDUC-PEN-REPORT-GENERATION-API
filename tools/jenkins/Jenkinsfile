@@ -9,8 +9,8 @@ pipeline{
           TOOLS = "${NAMESPACE}-tools"
           DEV = "${NAMESPACE}-dev"
 
-          APP_NAME = 'PEN-REPORT-GENERATION-API'
-          REPO_NAME = "EDUC-${APP_NAME}"
+          APP_NAME = 'pen-report-generation-api'
+          REPO_NAME = "educ-${APP_NAME}"
           OWNER = 'bcgov'
           JOB_NAME = 'main'
           TAG = 'latest'
@@ -21,7 +21,7 @@ pipeline{
           APP_DOMAIN = 'apps.silver.devops.gov.bc.ca'
           SOURCE_REPO_REF = 'main'
           SOURCE_REPO_URL = 'https://github.com/${OWNER}/${REPO_NAME}.git'
-          DC_URL = "https://raw.githubusercontent.com/${OWNER}/${REPO_NAME}/master/tools/openshift/api.dc.yaml"
+          DC_URL = "https://raw.githubusercontent.com/${OWNER}/${REPO_NAME}/${SOURCE_REPO_REF}/tools/openshift/api.dc.yaml"
           MIN_REPLICAS = "1"
           MAX_REPLICAS = "1"
           MIN_CPU = "30m"

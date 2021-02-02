@@ -13,7 +13,9 @@ export class NatsClient {
       url: server,
       name: 'PEN-REPORT-GENERATION-API',
       servers: [server],
-      maxReconnectAttempts: -1, // forever retry
+      maxReconnectAttempts: 60,
+      name: 'PEN-REPORT-GENERATION-API',
+      reconnectTimeWait: 5000, // wait 5 seconds before retrying...
       waitOnFirstConnect: true,
       pingInterval: 2000,
     };
