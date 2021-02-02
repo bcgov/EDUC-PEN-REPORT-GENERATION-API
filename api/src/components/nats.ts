@@ -11,6 +11,7 @@ export class NatsClient {
     const server: string = Configuration.getConfig(CONFIG_ELEMENT.NATS_URL);
     const natsOptions: NatsConnectionOptions = {
       url: server,
+      name: 'PEN-REPORT-GENERATION-API',
       servers: [server],
       maxReconnectAttempts: -1, // forever retry
       waitOnFirstConnect: true,
