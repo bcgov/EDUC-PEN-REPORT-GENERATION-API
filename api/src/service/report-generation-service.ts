@@ -76,10 +76,10 @@ export class ReportGenerationService {
       if (hashFromRedis) {
         await ReportGenerationService.saveTemplateHashIntoRedis(report.reportType.toString(), hashFromRedis);
       } else {
-        //throw new Error('could not upload template to cdogs api');
+        // throw new Error('could not upload template to cdogs api');
       }
     }
-    //const result: AxiosResponse<string> = await CdogsApiService.generateReportFromTemplateHash(hashFromRedis, report);
+    // const result: AxiosResponse<string> = await CdogsApiService.generateReportFromTemplateHash(hashFromRedis, report);
     return await CdogsApiService.generateReport(templatePath, report);
   }
 

@@ -7,7 +7,7 @@ import {plainToClass} from 'class-transformer';
 import {validate, ValidationError} from 'class-validator';
 import {ReportGenerationService} from '../../service/report-generation-service';
 import {SCOPE} from '../../config/scope';
-import {AxiosResponse} from "axios";
+import {AxiosResponse} from 'axios';
 
 export class ReportGenerationController {
   private readonly _router: any;
