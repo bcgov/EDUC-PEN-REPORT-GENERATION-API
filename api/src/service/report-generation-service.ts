@@ -61,7 +61,7 @@ export class ReportGenerationService {
    *
    * @param report
    */
-  public async generateBatchResponseReport(report: Report): Promise<AxiosResponse> {
+  public async generateReport(report: Report): Promise<AxiosResponse> {
     logger.info('report object received is ', report);
     let hashFromRedis: string = await ReportGenerationService.getTemplateHashFromRedis(report.reportType);
     const templatePath: string = path.join(__dirname, `../templates/${report.reportType.toString()}.docx`);
@@ -76,7 +76,7 @@ export class ReportGenerationService {
       if (hashFromRedis) {
         await ReportGenerationService.saveTemplateHashIntoRedis(report.reportType.toString(), hashFromRedis);
       } else {
-        // throw new Error('could not upload template to cdogs api');
+        throw new Error('could not upload template to cdogs api');
       }
     }
     // const result: AxiosResponse<string> = await CdogsApiService.generateReportFromTemplateHash(hashFromRedis, report);

@@ -30,12 +30,12 @@ export class ReportGenerationController {
       return;
     } else {
       try {
-        const generatedFile: AxiosResponse = await ReportGenerationService.instance.generateBatchResponseReport(report);
-        res.setHeader('Content-disposition', generatedFile?.headers['content-disposition']);
-        res.setHeader('Content-type', generatedFile?.headers['content-type']);
-        res.setHeader('content-length', generatedFile?.headers['content-length']);
-        res.setHeader('content-transfer-encoding', generatedFile?.headers['content-transfer-encoding']);
-        res.status(constants.HTTP_STATUS_OK).send(generatedFile?.data);
+        const generatedFileResponse: AxiosResponse = await ReportGenerationService.instance.generateReport(report);
+        res.setHeader('Content-disposition', generatedFileResponse?.headers['content-disposition']);
+        res.setHeader('Content-type', generatedFileResponse?.headers['content-type']);
+        res.setHeader('content-length', generatedFileResponse?.headers['content-length']);
+        res.setHeader('content-transfer-encoding', generatedFileResponse?.headers['content-transfer-encoding']);
+        res.status(constants.HTTP_STATUS_OK).send(generatedFileResponse?.data);
         return;
       } catch (e) {
         logger.error(e);
