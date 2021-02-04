@@ -62,7 +62,6 @@ export class ReportGenerationService {
    * @param report
    */
   public async generateReport(report: Report): Promise<AxiosResponse> {
-    logger.info('report object received is ', report);
     let hashFromRedis: string = await ReportGenerationService.getTemplateHashFromRedis(report.reportType);
     const templatePath: string = path.join(__dirname, `../templates/${report.reportType.toString()}.docx`);
     let cachedKeyFromCdogs: string;

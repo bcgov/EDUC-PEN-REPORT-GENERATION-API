@@ -56,7 +56,7 @@ export class CdogsApiService {
   }
 
   public static async generateReportFromTemplateHash(templateHash: string, report: Report, formatter?: string): Promise<AxiosResponse> {
-    logger.debug(`generateReport called with  templateHash :: ${templateHash}, formatter::  ${formatter}`, report);
+    logger.silly(`generateReport called with  templateHash :: ${templateHash}, formatter::  ${formatter}`, report);
     return await retry(async () => {
       const cdogsApiToken = await AuthHandler.getCDOGsApiToken();
       const config: AxiosRequestConfig = {
@@ -70,7 +70,7 @@ export class CdogsApiService {
       if (!!formatter) {
         reportBody.formatters = formatter;
       }
-      logger.info(`request to cdogs ${JSON.stringify(reportBody)}`);
+      logger.silly(`request to cdogs ${JSON.stringify(reportBody)}`);
       try {
         return await axios
           .post(`${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template/${templateHash}/render`, reportBody, config);
