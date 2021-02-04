@@ -8,31 +8,21 @@ import retry from 'async-retry';
 import {constants} from 'http2';
 import FormData from 'form-data';
 import {Report} from '../struct/v1/report';
+import {AxiosHelper} from '../helpers/AxiosHelper';
 
 export class CdogsApiService {
 
   public static async uploadTemplate(templatePath: string): Promise<string> {
     return await retry(async () => {
-      let apiToken: string;
       const bodyFormData = new FormData();
       bodyFormData.append('template', fs.createReadStream(templatePath));
-      try {
-        apiToken = await AuthHandler.getCDOGsApiToken();
-      } catch (e) {
-        logger.error(e);
-        throw e;
-      }
-      const config: AxiosRequestConfig = {
-        timeout: 30000,
-        headers: {
-          ...bodyFormData.getHeaders(),
-          'Authorization': `Bearer ${apiToken}`,
-        },
+      const headers: any = {
+        ...bodyFormData.getHeaders(),
       };
-      let uploadResponse: AxiosResponse;
+      const url = `${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template`;
       try {
-        uploadResponse = await axios
-          .post(`${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template`, bodyFormData, config);
+        const uploadResponse: AxiosResponse = await AxiosHelper.post(url, bodyFormData, headers);
+        return uploadResponse?.headers['x-template-hash'];
       } catch (e) {
         // CDOGS API will respond like this if same file is uploaded, API will catch that and return the hash.
         const detail: string = e?.response?.data?.detail;
@@ -43,11 +33,6 @@ export class CdogsApiService {
           throw e;
         }
       }
-      if (uploadResponse?.status === constants.HTTP_STATUS_OK) {
-        return uploadResponse?.headers['x-template-hash'];
-      } else {
-        throw new Error('No Template Hash from CDOGS API.');
-      }
     }, {
       retries: 5,
     });
@@ -55,15 +40,11 @@ export class CdogsApiService {
 
   public static async isReportTemplateCachedInCdogs(hashFromRedis: string): Promise<string> {
     return await retry(async () => {
-      const cdogsApiToken = await AuthHandler.getCDOGsApiToken();
-      const config: AxiosRequestConfig = {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${cdogsApiToken}`,
-        },
+      const headers: any = {
+        'Content-Type': 'application/json',
       };
-      const response: AxiosResponse<string> = await axios.create(config)
-        .get(`${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template/${hashFromRedis}`);
+      const url = `${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template/${hashFromRedis}`;
+      const response: AxiosResponse<string> = await AxiosHelper.get(url, headers);
       if (response?.status === constants.HTTP_STATUS_OK) {
         return response?.headers['x-template-hash'];
       } else {
