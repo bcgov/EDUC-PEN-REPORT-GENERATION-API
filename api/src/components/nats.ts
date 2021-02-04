@@ -9,10 +9,11 @@ export class NatsClient {
 
   public constructor() {
     const server: string = Configuration.getConfig(CONFIG_ELEMENT.NATS_URL);
+    const natsMaxReconnect: number = Configuration.getConfig(CONFIG_ELEMENT.NATS_MAX_RECONNECT);
     const natsOptions: NatsConnectionOptions = {
       url: server,
       servers: [server],
-      maxReconnectAttempts: 60,
+      maxReconnectAttempts: natsMaxReconnect,
       name: 'PEN-REPORT-GENERATION-API',
       reconnectTimeWait: 5000, // wait 5 seconds before retrying...
       waitOnFirstConnect: true,

@@ -4,7 +4,11 @@ import {Redis} from '../components/redis';
 import {REPORT_TYPE} from '../config/report-type';
 import {CdogsApiService} from './cdogs-api-service';
 import path from 'path';
+import {AxiosResponse} from 'axios';
 
+/**
+ * Singleton service class.
+ */
 export class ReportGenerationService {
 
   private static _instance: ReportGenerationService;
@@ -19,18 +23,19 @@ export class ReportGenerationService {
         logger.info('template path is ', templatePath);
         CdogsApiService.uploadTemplate(templatePath).then((templateHash: string) => {
           logger.info('got template hash from CDOGS API', templateHash);
-          ReportGenerationService.saveTemplateHashIntoRedis(reportTypeKey, templateHash).then(() => {
-            logger.info(`report template for ${reportTypeKey} is successfully stored in redis.`);
-          }).catch((e) => {
-            logger.error(e);
-          });
+          if (!!templateHash) {
+            ReportGenerationService.saveTemplateHashIntoRedis(reportTypeKey, templateHash).then(() => {
+              logger.info(`report template for ${reportTypeKey} is successfully stored in redis.`);
+            }).catch((e) => {
+              logger.error(e);
+            });
+          }
         }).catch((e) => {
           logger.error(e);
         });
       }).catch((e) => {
         logger.error(e);
       });
-
     });
   }
 
@@ -56,21 +61,25 @@ export class ReportGenerationService {
    *
    * @param report
    */
-  public async generateBatchResponseReport(report: Report): Promise<string> {
+  public async generateReport(report: Report): Promise<AxiosResponse> {
     logger.info('report object received is ', report);
-    const hashFromRedis: string = await ReportGenerationService.getTemplateHashFromRedis(report.reportType);
+    let hashFromRedis: string = await ReportGenerationService.getTemplateHashFromRedis(report.reportType);
+    const templatePath: string = path.join(__dirname, `../templates/${report.reportType.toString()}.docx`);
+    let cachedKeyFromCdogs: string;
     logger.info('hashFromRedis is ', hashFromRedis);
-    if (hashFromRedis) {
-      logger.info('inside if');
-    } else {
-      const hashKey: string = await CdogsApiService.uploadTemplate(`./templates/${report.reportType.toString()}.docx`);
-      if (hashKey) {
-        await ReportGenerationService.saveTemplateHashIntoRedis(report.reportType.toString(), hashKey);
+    if (!!hashFromRedis) {
+      logger.silly('check if the report template is cached in CDOGS API');
+      cachedKeyFromCdogs = await CdogsApiService.isReportTemplateCachedInCdogs(hashFromRedis);
+    }
+    if (!hashFromRedis || !cachedKeyFromCdogs || hashFromRedis !== cachedKeyFromCdogs) {
+      hashFromRedis = await CdogsApiService.uploadTemplate(templatePath);
+      if (hashFromRedis) {
+        await ReportGenerationService.saveTemplateHashIntoRedis(report.reportType.toString(), hashFromRedis);
       } else {
         throw new Error('could not upload template to cdogs api');
       }
     }
-    return 'ok';
+    return await CdogsApiService.generateReportFromTemplateHash(hashFromRedis, report);
   }
 
   public static get instance(): ReportGenerationService {
@@ -81,6 +90,6 @@ export class ReportGenerationService {
   }
 
   public start(): void {
-    logger.info('Report generation instantiated during application startup.');
+    logger.info('Report generation service instantiated during application startup.');
   }
 }

@@ -36,6 +36,7 @@ export class Configuration {
       },
       messaging: {
         natsUrl: process.env.NATS_URL,
+        natsMaxReconnect: process.env.NATS_MAX_RECONNECT,
       },
     });
   }

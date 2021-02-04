@@ -7,6 +7,7 @@ import {plainToClass} from 'class-transformer';
 import {validate, ValidationError} from 'class-validator';
 import {ReportGenerationService} from '../../service/report-generation-service';
 import {SCOPE} from '../../config/scope';
+import {AxiosResponse} from 'axios';
 
 export class ReportGenerationController {
   private readonly _router: any;
@@ -28,10 +29,20 @@ export class ReportGenerationController {
       res.status(constants.HTTP_STATUS_BAD_REQUEST).send(errorTexts);
       return;
     } else {
-      const generatedFile: string = await ReportGenerationService.instance.generateBatchResponseReport(report);
-      res.setHeader('Content-disposition', 'attachment; filename=' + report.reportName);
-      res.setHeader('Content-type', report.reportExtension);
-      res.status(constants.HTTP_STATUS_OK).send(Buffer.from(generatedFile, 'base64'));
+      try {
+        const generatedFileResponse: AxiosResponse = await ReportGenerationService.instance.generateReport(report);
+        logger.info('Received response status', generatedFileResponse?.status);
+        logger.info('Received response headers', generatedFileResponse?.headers);
+        ['Content-Disposition', 'Content-Type', 'Content-Length', 'Content-Transfer-Encoding', 'X-Report-Name'].forEach(h => {
+          res.setHeader(h, generatedFileResponse.headers[h.toLowerCase()]);
+        });
+        res.send(generatedFileResponse.data);
+        return;
+      } catch (e) {
+        logger.error(e);
+        res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        return;
+      }
     }
   }
 
