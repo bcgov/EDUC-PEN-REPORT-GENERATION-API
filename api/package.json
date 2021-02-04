@@ -24,7 +24,7 @@
     "ignore": [
       "src/public"
     ],
-    "exec": "node --max-old-space-size=260 -- node_modules/ts-node/dist/bin -P tsconfig.json ./src/report-generation-application.ts"
+    "exec": "node  --max-old-space-size=260 -- node_modules/ts-node/dist/bin -P tsconfig.json ./src/report-generation-application.ts --NODE_ENV=local"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
@@ -88,6 +88,7 @@
     "prom-client": "^13.0.0",
     "reflect-metadata": "^0.1.13",
     "serve-favicon": "^2.5.0",
+    "stream": "0.0.2",
     "ts-nats": "^1.2.15",
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.5.0"

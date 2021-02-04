@@ -31,11 +31,12 @@ export class ReportGenerationController {
     } else {
       try {
         const generatedFileResponse: AxiosResponse = await ReportGenerationService.instance.generateReport(report);
-        res.setHeader('Content-disposition', generatedFileResponse?.headers['content-disposition']);
-        res.setHeader('Content-type', generatedFileResponse?.headers['content-type']);
-        res.setHeader('content-length', generatedFileResponse?.headers['content-length']);
-        res.setHeader('content-transfer-encoding', generatedFileResponse?.headers['content-transfer-encoding']);
-        res.status(constants.HTTP_STATUS_OK).send(generatedFileResponse?.data);
+        logger.info('Received response status', generatedFileResponse?.status);
+        logger.info('Received response headers', generatedFileResponse?.headers);
+        ['Content-Disposition', 'Content-Type', 'Content-Length', 'Content-Transfer-Encoding', 'X-Report-Name'].forEach(h => {
+          res.setHeader(h, generatedFileResponse.headers[h.toLowerCase()]);
+        });
+        res.send(generatedFileResponse.data);
         return;
       } catch (e) {
         logger.error(e);

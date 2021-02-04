@@ -79,8 +79,7 @@ export class ReportGenerationService {
         throw new Error('could not upload template to cdogs api');
       }
     }
-    // const result: AxiosResponse<string> = await CdogsApiService.generateReportFromTemplateHash(hashFromRedis, report);
-    return await CdogsApiService.generateReportWithInlineTemplate(templatePath, report);
+    return await CdogsApiService.generateReportFromTemplateHash(hashFromRedis, report);
   }
 
   public static get instance(): ReportGenerationService {

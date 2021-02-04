@@ -12,4 +12,6 @@ export const CONFIG_ELEMENT = {
   REDIS_PORT: 'redis:port',
   REDIS_HOST: 'redis:host',
   NATS_URL: 'messaging:natsUrl',
+  NATS_MAX_RECONNECT: 'messaging:natsMaxReconnect',
+
 };
