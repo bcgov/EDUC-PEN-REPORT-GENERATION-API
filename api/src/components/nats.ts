@@ -3,11 +3,14 @@ import {Configuration} from '../config/configuration';
 import {CONFIG_ELEMENT} from '../config/config-element';
 import logger from './logger';
 
+let connectionClosed = false;
+
 export class NatsClient {
 
   public static connection: Client;
+  private static _instance: NatsClient;
 
-  public constructor() {
+  private constructor() {
     const server: string = Configuration.getConfig(CONFIG_ELEMENT.NATS_URL);
     const natsMaxReconnect: number = Configuration.getConfig(CONFIG_ELEMENT.NATS_MAX_RECONNECT);
     const natsOptions: NatsConnectionOptions = {
@@ -21,6 +24,9 @@ export class NatsClient {
     };
     connect(natsOptions).then((client: Client) => {
       NatsClient.connection = client;
+      client.on('connect', () => {
+        logger.info('NATS connected!');
+      });
       client.on('error', (reason: any) => {
         logger.error(`error on NATS ${reason}`);
       });
@@ -29,7 +35,7 @@ export class NatsClient {
       });
       client.on('close', (error: any) => {
         logger.error('NATS closed', error);
-        process.exit(1);
+        connectionClosed = true;
       });
       client.on('reconnecting', () => {
         logger.error('NATS reconnecting');
@@ -41,5 +47,15 @@ export class NatsClient {
       logger.error(e);
     });
   }
-}
 
+  public isConnectionClosed(): boolean {
+    return connectionClosed;
+  }
+
+  public static get instance(): NatsClient {
+    if (!NatsClient._instance) {
+      NatsClient._instance = new NatsClient();
+    }
+    return NatsClient._instance;
+  }
+}

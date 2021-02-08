@@ -14,7 +14,9 @@ export class AuthHandler {
   private static _JWKS: GetKeyFunction<JWSHeaderParameters, FlattenedJWSInput>;
 
   public constructor() {
-    AuthHandler._JWKS = createRemoteJWKSet(new URL(Configuration.getConfig(CONFIG_ELEMENT.OIDC_JWKS_URL)));
+    if (!AuthHandler._JWKS) {
+      AuthHandler._JWKS = createRemoteJWKSet(new URL(Configuration.getConfig(CONFIG_ELEMENT.OIDC_JWKS_URL)));
+    }
   }
 
   public static validateScope(scope: string): (req: Request, res: Response, next: NextFunction) => Promise<void> {

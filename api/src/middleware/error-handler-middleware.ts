@@ -1,5 +1,6 @@
 import {NextFunction, Request, Response} from 'express';
 import logger from '../components/logger';
+import {constants} from 'http2';
 
 export class ErrorHandlerMiddleware {
   public static handleJSONParsingErrors(err: any, req: Request, res: Response, next: NextFunction): any {
@@ -13,20 +14,20 @@ export class ErrorHandlerMiddleware {
       const responseJson = {
         error: errorMessage,
       };
-      return res.status(400).json(responseJson);
+      return res.status(constants.HTTP_STATUS_BAD_REQUEST).json(responseJson);
     } else {
       next();
     }
   }
 
   public static catchNotFoundError(req: Request, res: Response): void {
-    res.sendStatus(404);
+    res.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
   }
 
   public static handleError(err: any, req: Request, res: Response, next: NextFunction): any {
     if (err) {
       logger.error(err);
-      res.status(500).json(err?.stack);
+      res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).json(err?.stack);
     } else {
       next();
     }

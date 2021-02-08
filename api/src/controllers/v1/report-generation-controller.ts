@@ -10,9 +10,18 @@ import {SCOPE} from '../../config/scope';
 import {AxiosResponse} from 'axios';
 
 export class ReportGenerationController {
+
+  private static _instance: ReportGenerationController;
   private readonly _router: any;
 
-  public constructor() {
+  public static get instance(): ReportGenerationController {
+    if (!ReportGenerationController._instance) {
+      ReportGenerationController._instance = new ReportGenerationController();
+    }
+    return ReportGenerationController._instance;
+  }
+
+  private constructor() {
     this._router = express.Router();
     this._router.post('/v1/reports', AuthHandler.validateScope(SCOPE.GENERATE_PEN_REPORT), this.generateReport);
   }
@@ -49,6 +58,4 @@ export class ReportGenerationController {
   public get Router(): any {
     return this._router;
   }
-
-
 }
