@@ -35,12 +35,12 @@ export class App {
         logger.info(message);
       },
     };
+    this.expressApplication.use(HealthCheckController.instance.Router);
     this.expressApplication.use(morgan(Configuration.getConfig(CONFIG_ELEMENT.MORGAN_FORMAT), {'stream': logStream}));
     this.expressApplication.use(ErrorHandlerMiddleware.handleJSONParsingErrors); // JSON formatting error handling
     // set up routing to auth and main API
     const apiRouter = express.Router();
     this.expressApplication.use(/(\/api)?/, apiRouter);
-    apiRouter.use(HealthCheckController.instance.Router);
     apiRouter.use(ReportGenerationController.instance.Router);
     apiRouter.use(ErrorHandlerMiddleware.catchNotFoundError);
     apiRouter.use(ErrorHandlerMiddleware.handleError);

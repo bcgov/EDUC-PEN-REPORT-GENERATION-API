@@ -24,7 +24,7 @@ export class HealthCheckController {
     this._redis = redis;
     this._nats = nats;
     this._router = express.Router();
-    this._router.get('/health', (req: Request, res: Response) => this.healthCheck(req, res));
+    this._router.get('/api/health', (req: Request, res: Response) => this.healthCheck(req, res));
   }
 
   private healthCheck(_req: Request, res: Response): void {
