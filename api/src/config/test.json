@@ -1,0 +1,28 @@
+{
+  "server": {
+    "logLevel": "silly",
+    "morganFormat": "dev",
+    "port": "3000",
+    "bodyLimit": "50MB"
+  },
+  "oidc": {
+    "jwksUrl": "http://test"
+  },
+  "cdogs": {
+    "clientID": "CLIENT_ID",
+    "clientSecret": "CLIENT_SECRET",
+    "tokenEndpoint": "http://token",
+    "baseUrl": "http://cdogs"
+  },
+  "report_templates": {
+    "batch_response": ""
+  },
+  "redis": {
+    "host": "localhost",
+    "port": 6379
+  },
+  "messaging": {
+    "natsUrl": "nats://localhost:4222",
+    "natsMaxReconnect": 3
+  }
+}
