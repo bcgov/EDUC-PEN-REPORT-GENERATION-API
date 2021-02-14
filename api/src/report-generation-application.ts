@@ -6,6 +6,7 @@ import logger from './components/logger';
 import * as jsJoda from '@js-joda/core';
 import {CONFIG_ELEMENT} from './config/config-element';
 import {ReportGenerationService} from './service/report-generation-service';
+import {NatsClient} from './components/nats';
 // Add timestamp to log
 Object.defineProperty(log, 'heading', {
   get: () => {
@@ -101,11 +102,13 @@ export const reportGenerationApplication = ReportGenerationApplication.start();
 
 
 process.on('SIGINT', () => {
+  NatsClient.connection.close();
   reportGenerationApplication.httpServer.close(() => {
     log.info('process terminated');
   });
 });
 process.on('SIGTERM', () => {
+  NatsClient.connection.close();
   reportGenerationApplication.httpServer.close(() => {
     log.info('process terminated');
   });
