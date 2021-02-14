@@ -8,6 +8,7 @@ import logger from '../components/logger';
 import {CONFIG_ELEMENT} from '../config/config-element';
 import axios, {AxiosResponse} from 'axios';
 import qs from 'querystring';
+import {Redis} from '../components/redis';
 
 export class AuthHandler {
 
@@ -49,6 +50,10 @@ export class AuthHandler {
    */
   public static async getCDOGsApiToken(): Promise<string> {
     try {
+      const token = await Redis.getRedisClient().get('REPORT_GEN_API_CDOGS_TOKEN');
+      if (!!token){
+        return token;
+      }
       const response: AxiosResponse = await axios.post(Configuration.getConfig(CONFIG_ELEMENT.CDOGS_TOKEN_ENDPOINT),
         qs.stringify({
           client_id: Configuration.getConfig(CONFIG_ELEMENT.CDOGS_CLIENT_ID),
@@ -63,6 +68,7 @@ export class AuthHandler {
         }
       );
       logger.silly('getCDOGsApiToken Res', response.data);
+      await Redis.getRedisClient().set('REPORT_GEN_CDOGS_TOKEN', response?.data?.access_token, 'EX', 17000);
       return response?.data?.access_token;
     } catch (e) {
       logger.error(e);
