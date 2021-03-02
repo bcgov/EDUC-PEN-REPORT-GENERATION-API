@@ -2,6 +2,7 @@ import {Client, connect, ClientOpts} from 'nats';
 import {Configuration} from '../config/configuration';
 import {CONFIG_ELEMENT} from '../config/config-element';
 import logger from './logger';
+import {NatsSubscriber} from './nats-subscriber';
 
 let connectionClosed = false;
 
@@ -30,6 +31,7 @@ export class NatsClient {
     NatsClient._connection = client;
     client.on('connect', () => {
       logger.info('NATS connected!');
+      NatsSubscriber.instance.subscribe(client);
     });
     client.on('error', (reason: any) => {
       logger.error(`error on NATS ${reason}`);
