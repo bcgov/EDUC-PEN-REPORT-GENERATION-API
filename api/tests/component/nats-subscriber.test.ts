@@ -1,40 +1,48 @@
-import * as Helpers from '../helpers/helpers';
-import {TOPICS} from '../../src/constants/messaging';
-//import {mocked} from 'ts-jest/utils';
-import logger from "../../src/components/logger";
-// import {plainToClass} from "class-transformer";
-// import {Report} from "../../src/struct/v1/report";
-
-const MockedReportGenerationService = ReportGenerationService as jest.MockedClass<typeof ReportGenerationService>;
+import {Event} from '../../src/struct/v1/event';
+import {mocked} from 'ts-jest/utils';
+import {CdogsApiService} from '../../src/service/cdogs-api-service';
+import {ReportGenerationService} from '../../src/service/report-generation-service';
+import {EventHandlerService} from '../../src/service/event-handler-service';
+import {getGeneratePenRequestBatchReportsEvent} from '../helpers/helpers';
 
 jest.mock('../../src/service/report-generation-service', () => {
   return {
     ReportGenerationService: jest.fn().mockImplementation(() => {
       return {
         instance: () => {
-          ReportGenerationService._instance = new ReportGenerationService();
-          return ReportGenerationService._instance;
+          return {};
         },
         generateReport: () => {
-          return 'report oclock!';
+          return 'abc';
         },
       };
     }),
   };
 });
 
+jest.mock('../../src/service/cdogs-api-service', () => {
+  return {
+    CdogsApiService: jest.fn().mockImplementation(() => {
+      return {
+        uploadTemplate: () => {
+          return 'hash';
+        },
+      };
+    }),
+  };
+});
 describe('test subscribe function', () => {
 
   beforeEach(() => {
-    //MockedReportGenerationService.mockClear();
+    // MockedReportGenerationService.mockClear();
   });
 
-  it('given GENERATE_PEN_REQUEST_BATCH_REPORTS event it should call generateReport and publish response correctly', () => {
-    const nats = Helpers.getMockedNatsClient();
-    logger.error("HERE");
-    const mockedReport = mocked(ReportGenerationService, true);
-    nats.publish(TOPICS[0], Helpers.getGeneratePenRequestBatchReportsEvent());
-
+  it('given GENERATE_PEN_REQUEST_BATCH_REPORTS event it should call generateReport and publish response correctly', async () => {
+    const event: Event = JSON.parse(getGeneratePenRequestBatchReportsEvent());
+    await EventHandlerService.instance.handleEvent(event);
+    const mockedReport = mocked(CdogsApiService, true);
+    const mockedRGS = mocked(ReportGenerationService, true);
+    expect(mockedRGS).toHaveBeenCalledTimes(1);
     expect(mockedReport).toHaveBeenCalledTimes(1);
   });
 });
