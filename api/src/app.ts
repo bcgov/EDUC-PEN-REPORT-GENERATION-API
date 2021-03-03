@@ -14,6 +14,7 @@ import {CONFIG_ELEMENT} from './config/config-element';
 import {HealthCheckController} from './controllers/health-check';
 import expressStatusMonitor = require('express-status-monitor');
 import {iocContainer} from './config/inversify.config';
+import {ReportGenerationService} from './service/report-generation-service';
 
 export class App {
   public expressApplication: express.Application;
@@ -36,6 +37,8 @@ export class App {
         logger.info(message);
       },
     };
+    const reportGenerationService = iocContainer.resolve(ReportGenerationService);
+    reportGenerationService.init();
     const healthCheckController = iocContainer.resolve(HealthCheckController);
     this.expressApplication.use(healthCheckController.Router);
     this.expressApplication.use(morgan(Configuration.getConfig(CONFIG_ELEMENT.MORGAN_FORMAT), {'stream': logStream}));
