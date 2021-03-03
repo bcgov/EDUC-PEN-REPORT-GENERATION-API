@@ -25,7 +25,7 @@ describe('test subscribe function', () => {
   it('given GENERATE_PEN_REQUEST_BATCH_REPORTS event it should call generateReport and publish response correctly', async () => {
 
     const event: Event = JSON.parse(Helpers.getGeneratePenRequestBatchReportsEvent());
-    const eventHandlerService = new EventHandlerService(new ReportGenerationService());
+    const eventHandlerService = new EventHandlerService(new ReportGenerationService(undefined, undefined));
     const response = await eventHandlerService.handleEvent(event);
     const responseEvent = JSON.parse(Helpers.getGeneratePenRequestBatchReportsResponseEvent());
 

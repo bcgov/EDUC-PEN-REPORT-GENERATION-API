@@ -1,8 +1,11 @@
 import express, {Request, Response} from 'express';
 import {NatsClient} from '../components/nats';
 import {Redis} from '../components/redis';
+import {injectable} from 'inversify';
+import {IHealthCheckController} from './interfaces/i-health-check';
 
-export class HealthCheckController {
+@injectable()
+export class HealthCheckController implements IHealthCheckController {
   private _redis: Redis;
   private _nats: NatsClient;
 

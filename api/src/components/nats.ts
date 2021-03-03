@@ -4,17 +4,22 @@ import {CONFIG_ELEMENT} from '../config/config-element';
 import logger from './logger';
 import {NatsSubscriber} from './nats-subscriber';
 import {ReportGenerationService} from '../service/report-generation-service';
+import {injectable} from 'inversify';
+import {INatsClient} from './interfaces/i-nats';
 
 let connectionClosed = false;
 
-export class NatsClient {
+@injectable()
+export class NatsClient implements INatsClient {
   public static get connection(): Client {
     return this._connection;
   }
 
   private static _connection: Client;
+  private readonly _reportGenerationService: ReportGenerationService;
 
   public constructor(reportGenerationService: ReportGenerationService) {
+    this._reportGenerationService = reportGenerationService;
     const server: string = Configuration.getConfig(CONFIG_ELEMENT.NATS_URL);
     const natsMaxReconnect: number = Configuration.getConfig(CONFIG_ELEMENT.NATS_MAX_RECONNECT);
     const natsOptions: ClientOpts = {
@@ -29,7 +34,7 @@ export class NatsClient {
     };
     const client: Client = connect(natsOptions);
     NatsClient._connection = client;
-    const natsSubscriber = new NatsSubscriber(reportGenerationService);
+    const natsSubscriber = new NatsSubscriber(this._reportGenerationService);
     client.on('connect', () => {
       logger.info('NATS connected!');
       natsSubscriber.subscribe(client);

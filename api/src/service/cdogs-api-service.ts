@@ -1,6 +1,5 @@
 import fs from 'fs';
 import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
-import {AuthHandler} from '../middleware/auth-handler';
 import {Configuration} from '../config/configuration';
 import {CONFIG_ELEMENT} from '../config/config-element';
 import logger from '../components/logger';
@@ -9,10 +8,36 @@ import {constants} from 'http2';
 import FormData from 'form-data';
 import {Report} from '../struct/v1/report';
 import {AxiosHelper} from '../helpers/AxiosHelper';
+import {injectable} from 'inversify';
+import {AuthHandler} from '../middleware/auth-handler';
+import {ICdogsApiService} from './interfaces/i-cdogs-api-service';
 
-export class CdogsApiService {
+@injectable()
+export class CdogsApiService implements ICdogsApiService {
 
-  public static async uploadTemplate(templatePath: string): Promise<string> {
+  private _axiosHelper: AxiosHelper;
+  private _authHandler: AuthHandler;
+
+  public constructor(axiosHelper: AxiosHelper, authHandler: AuthHandler) {
+    this._axiosHelper = axiosHelper;
+    this._authHandler = authHandler;
+  }
+
+  private static createPostBody(report: Report): Record<string, unknown> {
+    return {
+      data: {
+        ...report.data,
+      },
+      options: {
+        'cacheReport': false,
+        'convertTo': report.reportExtension.toString(),
+        'overwrite': true,
+        'reportName': report.reportName,
+      },
+    };
+  }
+
+  public async uploadTemplate(templatePath: string): Promise<string> {
     return await retry(async () => {
       const bodyFormData = new FormData();
       bodyFormData.append('template', fs.createReadStream(templatePath));
@@ -21,7 +46,7 @@ export class CdogsApiService {
       };
       const url = `${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template`;
       try {
-        const uploadResponse: AxiosResponse = await AxiosHelper.post(url, bodyFormData, headers);
+        const uploadResponse: AxiosResponse = await this._axiosHelper.post(url, bodyFormData, headers);
         return uploadResponse?.headers['x-template-hash'];
       } catch (e) {
         // CDOGS API will respond like this if same file is uploaded, API will catch that and return the hash.
@@ -38,13 +63,13 @@ export class CdogsApiService {
     });
   }
 
-  public static async isReportTemplateCachedInCdogs(hashFromRedis: string): Promise<string> {
+  public async isReportTemplateCachedInCdogs(hashFromRedis: string): Promise<string> {
     return await retry(async () => {
       const headers: any = {
         'Content-Type': 'application/json',
       };
       const url = `${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template/${hashFromRedis}`;
-      const response: AxiosResponse<string> = await AxiosHelper.get(url, headers);
+      const response: AxiosResponse<string> = await this._axiosHelper.get(url, headers);
       if (response?.status === constants.HTTP_STATUS_OK) {
         return response?.headers['x-template-hash'];
       } else {
@@ -55,10 +80,10 @@ export class CdogsApiService {
     });
   }
 
-  public static async generateReportFromTemplateHash(templateHash: string, report: Report, formatter?: string): Promise<AxiosResponse> {
+  public async generateReportFromTemplateHash(templateHash: string, report: Report, formatter?: string): Promise<AxiosResponse> {
     logger.silly(`generateReport called with  templateHash :: ${templateHash}, formatter::  ${formatter}`, report);
     return await retry(async () => {
-      const cdogsApiToken = await AuthHandler.getCDOGsApiToken();
+      const cdogsApiToken = await this._authHandler.getCDOGsApiToken();
       const config: AxiosRequestConfig = {
         responseType: 'arraybuffer',
         headers: {
@@ -66,7 +91,7 @@ export class CdogsApiService {
           'Authorization': `Bearer ${cdogsApiToken}`,
         },
       };
-      const reportBody = this.createPostBody(report);
+      const reportBody = CdogsApiService.createPostBody(report);
       if (!!formatter) {
         reportBody.formatters = formatter;
       }
@@ -81,19 +106,5 @@ export class CdogsApiService {
     }, {
       retries: 3,
     });
-  }
-
-  private static createPostBody(report: Report): Record<string, unknown> {
-    return {
-      data: {
-        ...report.data,
-      },
-      options: {
-        'cacheReport': false,
-        'convertTo': report.reportExtension.toString(),
-        'overwrite': true,
-        'reportName': report.reportName,
-      },
-    };
   }
 }
