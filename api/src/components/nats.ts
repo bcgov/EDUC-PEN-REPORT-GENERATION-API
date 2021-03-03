@@ -2,6 +2,8 @@ import {Client, connect, ClientOpts} from 'nats';
 import {Configuration} from '../config/configuration';
 import {CONFIG_ELEMENT} from '../config/config-element';
 import logger from './logger';
+import {NatsSubscriber} from './nats-subscriber';
+import {ReportGenerationService} from '../service/report-generation-service';
 
 let connectionClosed = false;
 
@@ -11,9 +13,8 @@ export class NatsClient {
   }
 
   private static _connection: Client;
-  private static _instance: NatsClient;
 
-  private constructor() {
+  public constructor(reportGenerationService: ReportGenerationService) {
     const server: string = Configuration.getConfig(CONFIG_ELEMENT.NATS_URL);
     const natsMaxReconnect: number = Configuration.getConfig(CONFIG_ELEMENT.NATS_MAX_RECONNECT);
     const natsOptions: ClientOpts = {
@@ -28,8 +29,10 @@ export class NatsClient {
     };
     const client: Client = connect(natsOptions);
     NatsClient._connection = client;
+    const natsSubscriber = new NatsSubscriber(reportGenerationService);
     client.on('connect', () => {
       logger.info('NATS connected!');
+      natsSubscriber.subscribe(client);
     });
     client.on('error', (reason: any) => {
       logger.error(`error on NATS ${reason}`);
@@ -51,12 +54,5 @@ export class NatsClient {
 
   public isConnectionClosed(): boolean {
     return connectionClosed;
-  }
-
-  public static get instance(): NatsClient {
-    if (!NatsClient._instance) {
-      NatsClient._instance = new NatsClient();
-    }
-    return NatsClient._instance;
   }
 }

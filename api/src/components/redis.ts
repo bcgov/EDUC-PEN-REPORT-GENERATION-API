@@ -6,10 +6,9 @@ import IORedis from 'ioredis';
 let connectionClosed = false;
 
 export class Redis {
-  private static _instance: Redis;
   private static _redisClient: IORedis.Redis | IORedis.Cluster;
 
-  private constructor() {
+  public constructor() {
     if ('local' === Configuration.getConfig(CONFIG_ELEMENT.ENVIRONMENT)) {
       Redis._redisClient = new IORedis({
         host: Configuration.getConfig(CONFIG_ELEMENT.REDIS_HOST),
@@ -42,12 +41,6 @@ export class Redis {
 
   public isConnectionClosed(): boolean {
     return connectionClosed;
-  }
-  public static get instance(): Redis {
-    if (!Redis._instance) {
-      Redis._instance = new Redis();
-    }
-    return Redis._instance;
   }
 }
 
