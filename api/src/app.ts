@@ -13,6 +13,9 @@ import {ReportGenerationController} from './controllers/v1/report-generation-con
 import {CONFIG_ELEMENT} from './config/config-element';
 import {HealthCheckController} from './controllers/health-check';
 import expressStatusMonitor = require('express-status-monitor');
+import {ReportGenerationService} from './service/report-generation-service';
+import {NatsClient} from './components/nats';
+import {Redis} from './components/redis';
 
 export class App {
   public expressApplication: express.Application;
@@ -35,13 +38,16 @@ export class App {
         logger.info(message);
       },
     };
-    this.expressApplication.use(HealthCheckController.instance.Router);
+    const reportGenerationService = new ReportGenerationService();
+    const natsClient = new NatsClient(reportGenerationService);
+    const redisClient = new Redis();
+    this.expressApplication.use(new HealthCheckController(natsClient, redisClient).Router);
     this.expressApplication.use(morgan(Configuration.getConfig(CONFIG_ELEMENT.MORGAN_FORMAT), {'stream': logStream}));
     this.expressApplication.use(ErrorHandlerMiddleware.handleJSONParsingErrors); // JSON formatting error handling
     // set up routing to auth and main API
     const apiRouter = express.Router();
     this.expressApplication.use(/(\/api)?/, apiRouter);
-    apiRouter.use(ReportGenerationController.instance.Router);
+    apiRouter.use(new ReportGenerationController(reportGenerationService).Router);
     apiRouter.use(ErrorHandlerMiddleware.catchNotFoundError);
     apiRouter.use(ErrorHandlerMiddleware.handleError);
   }

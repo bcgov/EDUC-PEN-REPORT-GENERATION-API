@@ -3,7 +3,6 @@ import {NatsClient} from '../components/nats';
 import {Redis} from '../components/redis';
 
 export class HealthCheckController {
-  private static _instance: HealthCheckController;
   private _redis: Redis;
   private _nats: NatsClient;
 
@@ -11,16 +10,9 @@ export class HealthCheckController {
     return this._router;
   }
 
-  public static get instance(): HealthCheckController {
-    if (!HealthCheckController._instance) {
-      HealthCheckController._instance = new HealthCheckController(NatsClient.instance, Redis.instance);
-    }
-    return HealthCheckController._instance;
-  }
-
   private readonly _router: any;
 
-  private constructor(nats: NatsClient, redis: Redis) {
+  public constructor(nats: NatsClient, redis: Redis) {
     this._redis = redis;
     this._nats = nats;
     this._router = express.Router();

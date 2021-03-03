@@ -11,19 +11,13 @@ import {AxiosResponse} from 'axios';
 
 export class ReportGenerationController {
 
-  private static _instance: ReportGenerationController;
   private readonly _router: any;
+  private readonly _reportGenerationService: ReportGenerationService;
 
-  public static get instance(): ReportGenerationController {
-    if (!ReportGenerationController._instance) {
-      ReportGenerationController._instance = new ReportGenerationController();
-    }
-    return ReportGenerationController._instance;
-  }
-
-  private constructor() {
+  public constructor(reportGenerationService: ReportGenerationService) {
     this._router = express.Router();
     this._router.post('/v1/reports', AuthHandler.validateScope(SCOPE.GENERATE_PEN_REPORT), this.generateReport);
+    this._reportGenerationService = reportGenerationService;
   }
 
   public async generateReport(req: Request, res: Response): Promise<void> {
@@ -39,7 +33,7 @@ export class ReportGenerationController {
       return;
     } else {
       try {
-        const generatedFileResponse: AxiosResponse = await ReportGenerationService.instance.generateReport(report);
+        const generatedFileResponse: AxiosResponse = await this._reportGenerationService.generateReport(report);
         logger.info('Received response status', generatedFileResponse?.status);
         logger.info('Received response headers', generatedFileResponse?.headers);
         ['Content-Disposition', 'Content-Type', 'Content-Length', 'Content-Transfer-Encoding', 'X-Report-Name'].forEach(h => {

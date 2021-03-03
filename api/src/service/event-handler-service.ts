@@ -5,13 +5,10 @@ import logger from '../components/logger';
 
 export class EventHandlerService {
 
-  private static _instance: EventHandlerService;
+  private readonly _reportGenerationService: ReportGenerationService;
 
-  public static get instance(): EventHandlerService {
-    if (!EventHandlerService._instance) {
-      EventHandlerService._instance = new EventHandlerService();
-    }
-    return EventHandlerService._instance;
+  public constructor(reportGenerationService: ReportGenerationService) {
+    this._reportGenerationService = reportGenerationService;
   }
 
   public async handleEvent(event: Event): Promise<Event | any> {
@@ -29,7 +26,7 @@ export class EventHandlerService {
 
   public async handleGeneratePenRequestBatchReports(event: Event): Promise<Event> {
     try {
-      const generatedFileResponse = await ReportGenerationService.instance.generateReport(event.eventPayload);
+      const generatedFileResponse = await this._reportGenerationService.generateReport(event.eventPayload);
       logger.info('Received response status', generatedFileResponse?.status);
       logger.info('Received response headers', generatedFileResponse?.headers);
       const responseEvent = event;

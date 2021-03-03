@@ -11,12 +11,12 @@ import {AxiosResponse} from 'axios';
  */
 export class ReportGenerationService {
 
-  private static _instance: ReportGenerationService;
+  public static _instance: ReportGenerationService;
 
   /**
    * during application startup , remove template hashes from REDIS, call CDOGS API and upload all templates and store there hash keys
    */
-  private constructor() {
+  public constructor() {
     Object.values(REPORT_TYPE).forEach(reportTypeKey => {
       ReportGenerationService.removeTemplateHashFromRedis(reportTypeKey).then(() => {
         const templatePath: string = path.join(__dirname, `../templates/${reportTypeKey}.docx`);
