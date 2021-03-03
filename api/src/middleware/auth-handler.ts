@@ -8,25 +8,28 @@ import logger from '../components/logger';
 import {CONFIG_ELEMENT} from '../config/config-element';
 import axios, {AxiosResponse} from 'axios';
 import qs from 'querystring';
+import {injectable} from 'inversify';
 import {Redis} from '../components/redis';
+import {IAuthHandler} from './interfaces/i-auth-handler';
 
-export class AuthHandler {
+@injectable()
+export class AuthHandler implements IAuthHandler {
 
-  private static _JWKS: GetKeyFunction<JWSHeaderParameters, FlattenedJWSInput>;
+  private readonly _JWKS: GetKeyFunction<JWSHeaderParameters, FlattenedJWSInput>;
+  private  _redisClient: Redis;
 
-  public constructor() {
-    if (!AuthHandler._JWKS) {
-      AuthHandler._JWKS = createRemoteJWKSet(new URL(Configuration.getConfig(CONFIG_ELEMENT.OIDC_JWKS_URL)));
-    }
+  public constructor(redis: Redis) {
+    this._JWKS = createRemoteJWKSet(new URL(Configuration.getConfig(CONFIG_ELEMENT.OIDC_JWKS_URL)));
+    this._redisClient = redis;
   }
 
-  public static validateScope(scope: string): (req: Request, res: Response, next: NextFunction) => Promise<void> {
+  public  validateScope(scope: string): (req: Request, res: Response, next: NextFunction) => Promise<void> {
     return async (req: Request, res: Response, next: NextFunction) => {
       if (req?.headers.authorization) {
         const tokenString = req.headers.authorization.split(' ')[1];
         logger.silly('token', tokenString);
         try {
-          const jwtVerifyResult: JWTVerifyResult = await jwtVerify(tokenString, AuthHandler._JWKS);
+          const jwtVerifyResult: JWTVerifyResult = await jwtVerify(tokenString, this._JWKS);
           const scopes: string[] = jwtVerifyResult?.payload?.scope?.split(' ');
           if (scopes && scopes.includes(scope)) {
             next();
@@ -48,9 +51,9 @@ export class AuthHandler {
   /**
    * this function returns access token to call CDOGS API
    */
-  public static async getCDOGsApiToken(): Promise<string> {
+  public  async getCDOGsApiToken(): Promise<string> {
     try {
-      const token = await Redis.getRedisClient().get('REPORT_GEN_API_CDOGS_TOKEN');
+      const token = await this._redisClient.getRedisClient().get('REPORT_GEN_API_CDOGS_TOKEN');
       if (!!token){
         return token;
       }
@@ -68,7 +71,7 @@ export class AuthHandler {
         }
       );
       logger.silly('getCDOGsApiToken Res', response.data);
-      await Redis.getRedisClient().set('REPORT_GEN_CDOGS_TOKEN', response?.data?.access_token, 'EX', 17000);
+      await this._redisClient.getRedisClient().set('REPORT_GEN_CDOGS_TOKEN', response?.data?.access_token, 'EX', 17000);
       return response?.data?.access_token;
     } catch (e) {
       logger.error(e);
@@ -76,5 +79,3 @@ export class AuthHandler {
     }
   }
 }
-
-new AuthHandler();

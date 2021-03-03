@@ -2,40 +2,43 @@ import {Configuration} from '../config/configuration';
 import {CONFIG_ELEMENT} from '../config/config-element';
 import logger from './logger';
 import IORedis from 'ioredis';
+import {injectable} from 'inversify';
+import {IRedis} from './interfaces/i-redis';
 
 let connectionClosed = false;
 
-export class Redis {
-  private static _redisClient: IORedis.Redis | IORedis.Cluster;
+@injectable()
+export class Redis implements IRedis {
+  private readonly _redisClient: IORedis.Redis | IORedis.Cluster;
 
   public constructor() {
     if ('local' === Configuration.getConfig(CONFIG_ELEMENT.ENVIRONMENT)) {
-      Redis._redisClient = new IORedis({
+      this._redisClient = new IORedis({
         host: Configuration.getConfig(CONFIG_ELEMENT.REDIS_HOST),
         port: Configuration.getConfig(CONFIG_ELEMENT.REDIS_PORT),
       });
     } else {
-      Redis._redisClient = new IORedis.Cluster([{
+      this._redisClient = new IORedis.Cluster([{
         host: Configuration.getConfig(CONFIG_ELEMENT.REDIS_HOST),
         port: Configuration.getConfig(CONFIG_ELEMENT.REDIS_PORT),
       }]);
     }
-    Redis._redisClient.on('error', (error) => {
+    this._redisClient.on('error', (error) => {
       logger.error(`error occurred in redis client. ${error}`);
     });
-    Redis._redisClient.on('ready', () => {
+    this._redisClient.on('ready', () => {
       logger.info('Redis Ready.');
     });
-    Redis._redisClient.on('connect', () => {
+    this._redisClient.on('connect', () => {
       logger.info('connected to redis.');
     });
-    Redis._redisClient.on('end', (error) => {
+    this._redisClient.on('end', (error) => {
       logger.error(`redis client end. ${error}`);
       connectionClosed = true;
     });
   }
 
-  public static getRedisClient(): IORedis.Redis | IORedis.Cluster {
+  public getRedisClient(): IORedis.Redis | IORedis.Cluster {
     return this._redisClient;
   }
 

@@ -38,5 +38,6 @@
       "esnext.asynciterable"
     ]
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests"],
+  "types": ["reflect-metadata"]
 }

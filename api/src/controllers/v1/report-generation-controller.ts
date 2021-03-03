@@ -1,5 +1,4 @@
 import express, {Request, Response} from 'express';
-import {AuthHandler} from '../../middleware/auth-handler';
 import {Report} from '../../struct/v1/report';
 import {constants} from 'http2';
 import logger from '../../components/logger';
@@ -8,15 +7,19 @@ import {validate, ValidationError} from 'class-validator';
 import {ReportGenerationService} from '../../service/report-generation-service';
 import {SCOPE} from '../../config/scope';
 import {AxiosResponse} from 'axios';
+import {injectable} from 'inversify';
+import {IReportGenerationController} from './interfaces/i-report-generation-controller';
+import {AuthHandler} from '../../middleware/auth-handler';
 
-export class ReportGenerationController {
+@injectable()
+export class ReportGenerationController implements IReportGenerationController {
 
   private readonly _router: any;
   private readonly _reportGenerationService: ReportGenerationService;
 
-  public constructor(reportGenerationService: ReportGenerationService) {
+  public constructor(reportGenerationService: ReportGenerationService, authHandler: AuthHandler) {
     this._router = express.Router();
-    this._router.post('/v1/reports', AuthHandler.validateScope(SCOPE.GENERATE_PEN_REPORT), this.generateReport);
+    this._router.post('/v1/reports', authHandler.validateScope(SCOPE.GENERATE_PEN_REPORT), this.generateReport);
     this._reportGenerationService = reportGenerationService;
   }
 

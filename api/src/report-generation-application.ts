@@ -5,7 +5,6 @@ import log from './components/logger';
 import logger from './components/logger';
 import * as jsJoda from '@js-joda/core';
 import {CONFIG_ELEMENT} from './config/config-element';
-import {ReportGenerationService} from './service/report-generation-service';
 import {NatsClient} from './components/nats';
 // Add timestamp to log
 Object.defineProperty(log, 'heading', {
@@ -32,7 +31,6 @@ class ReportGenerationApplication {
     this._httpServer.listen(this._port);
     this._httpServer.on('error', ReportGenerationApplication.onError);
     this._httpServer.on('listening', ReportGenerationApplication.onListening);
-    ReportGenerationService.instance.start();
   }
 
   public get httpServer(): Server {
