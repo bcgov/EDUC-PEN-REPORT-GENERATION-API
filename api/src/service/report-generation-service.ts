@@ -23,8 +23,6 @@ export class ReportGenerationService implements IReportGenerationService{
   public constructor(redisClient: Redis, cdogsApiService: CdogsApiService) {
     this._redisClient = redisClient;
     this._cdogsApiService = cdogsApiService;
-  }
-  public init(): void {
     Object.values(REPORT_TYPE).forEach(reportTypeKey => {
       this.removeTemplateHashFromRedis(reportTypeKey).then(() => {
         const templatePath: string = path.join(__dirname, `../templates/${reportTypeKey}.docx`);
