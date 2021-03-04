@@ -5,14 +5,14 @@ import {REPORT_TYPE} from '../config/report-type';
 import {CdogsApiService} from './cdogs-api-service';
 import path from 'path';
 import {AxiosResponse} from 'axios';
-import {injectable} from 'inversify';
+import {injectable, postConstruct} from 'inversify';
 import {IReportGenerationService} from './interfaces/i-report-generation-service';
 
 /**
  * Singleton service class.
  */
 @injectable()
-export class ReportGenerationService implements IReportGenerationService{
+export class ReportGenerationService implements IReportGenerationService {
 
   private readonly _redisClient: Redis;
   private readonly _cdogsApiService: CdogsApiService;
@@ -23,6 +23,10 @@ export class ReportGenerationService implements IReportGenerationService{
   public constructor(redisClient: Redis, cdogsApiService: CdogsApiService) {
     this._redisClient = redisClient;
     this._cdogsApiService = cdogsApiService;
+  }
+
+  @postConstruct()
+  public init(): void {
     Object.values(REPORT_TYPE).forEach(reportTypeKey => {
       this.removeTemplateHashFromRedis(reportTypeKey).then(() => {
         const templatePath: string = path.join(__dirname, `../templates/${reportTypeKey}.docx`);
