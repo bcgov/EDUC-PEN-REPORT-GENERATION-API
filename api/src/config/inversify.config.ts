@@ -17,14 +17,14 @@ import {IReportGenerationService} from '../service/interfaces/i-report-generatio
 import {IAxiosHelper} from '../helpers/interfaces/i-axios-helper';
 
 const iocContainer = new Container();
-iocContainer.bind<IRedis>(Redis).toSelf();
-iocContainer.bind<INatsClient>(NatsClient).toSelf();
-iocContainer.bind<IAuthHandler>(AuthHandler).toSelf();
-iocContainer.bind<IReportGenerationService>(ReportGenerationService).toSelf();
-iocContainer.bind<IHealthCheckController>(HealthCheckController).toSelf();
-iocContainer.bind<IReportGenerationController>(ReportGenerationController).toSelf();
-iocContainer.bind<IAxiosHelper>(AxiosHelper).toSelf();
-iocContainer.bind<ICdogsApiService>(CdogsApiService).toSelf();
+iocContainer.bind<IRedis>(Redis).toSelf().inSingletonScope();
+iocContainer.bind<INatsClient>(NatsClient).toSelf().inSingletonScope();
+iocContainer.bind<IAuthHandler>(AuthHandler).toSelf().inSingletonScope();
+iocContainer.bind<IReportGenerationService>(ReportGenerationService).toSelf().inSingletonScope();
+iocContainer.bind<IHealthCheckController>(HealthCheckController).toSelf().inSingletonScope();
+iocContainer.bind<IReportGenerationController>(ReportGenerationController).toSelf().inSingletonScope();
+iocContainer.bind<IAxiosHelper>(AxiosHelper).toSelf().inSingletonScope();
+iocContainer.bind<ICdogsApiService>(CdogsApiService).toSelf().inSingletonScope();
 
 
 export { iocContainer };
