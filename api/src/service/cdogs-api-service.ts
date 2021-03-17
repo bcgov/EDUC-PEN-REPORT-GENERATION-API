@@ -23,7 +23,7 @@ export class CdogsApiService implements ICdogsApiService {
     this._authHandler = authHandler;
   }
 
-  private static createPostBody(report: Report): Record<string, unknown> {
+  private static createPostBody(report: Report<any>): Record<string, unknown> {
     return {
       data: {
         ...report.data,
@@ -80,7 +80,7 @@ export class CdogsApiService implements ICdogsApiService {
     });
   }
 
-  public async generateReportFromTemplateHash(templateHash: string, report: Report, formatter?: string): Promise<AxiosResponse> {
+  public async generateReportFromTemplateHash(templateHash: string, report: Report<any>, formatter?: string): Promise<AxiosResponse> {
     logger.silly(`generateReport called with  templateHash :: ${templateHash}, formatter::  ${formatter}`, report);
     return await retry(async () => {
       const cdogsApiToken = await this._authHandler.getCDOGsApiToken();
