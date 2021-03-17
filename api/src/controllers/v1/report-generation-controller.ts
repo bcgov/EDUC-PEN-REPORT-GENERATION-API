@@ -19,12 +19,12 @@ export class ReportGenerationController implements IReportGenerationController {
 
   public constructor(reportGenerationService: ReportGenerationService, authHandler: AuthHandler) {
     this._router = express.Router();
-    this._router.post('/v1/reports', authHandler.validateScope(SCOPE.GENERATE_PEN_REPORT), this.generateReport);
+    this._router.post('/v1/reports', authHandler.validateScope(SCOPE.GENERATE_PEN_REPORT), (req: Request, res: Response) => this.generateReport(req, res));
     this._reportGenerationService = reportGenerationService;
   }
 
   public async generateReport(req: Request, res: Response): Promise<void> {
-    const report: Report = plainToClass(Report, req.body);
+    const report: Report<Record<string, unknown>> = plainToClass(Report, req.body);
     logger.silly('Received report', report);
     const validationErrors: ValidationError[] = await validate(report);
     if (validationErrors?.length > 0) {
