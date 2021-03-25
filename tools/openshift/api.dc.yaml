@@ -147,27 +147,6 @@ objects:
     selector:
       app: "${APP_NAME}-${JOB_NAME}"
       deploymentconfig: "${APP_NAME}-${JOB_NAME}"
-- apiVersion: v1
-  kind: Route
-  metadata:
-    annotations:
-      openshift.io/host.generated: 'true'
-    labels:
-      app: "${APP_NAME}-${JOB_NAME}"
-    name: "${APP_NAME}-${JOB_NAME}"
-  spec:
-    host: "${HOST_ROUTE}"
-    path: "/"
-    port:
-      targetPort: 3000-tcp
-    tls:
-      insecureEdgeTerminationPolicy: Redirect
-      termination: edge
-    to:
-      kind: Service
-      name: "${APP_NAME}-${JOB_NAME}"
-      weight: 100
-    wildcardPolicy: None
 - apiVersion: autoscaling/v2beta1
   kind: HorizontalPodAutoscaler
   metadata:
