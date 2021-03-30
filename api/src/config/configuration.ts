@@ -6,7 +6,7 @@ export class Configuration {
 
   public constructor() {
     Configuration._nconf = nconf;
-    const env = 'local';
+    const env = process.env.NODE_ENV;
     nconf.argv()
       .file({file: path.join(__dirname, `${env}.json`)});
 
