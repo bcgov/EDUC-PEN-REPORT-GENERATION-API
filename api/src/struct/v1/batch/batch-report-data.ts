@@ -1,6 +1,7 @@
 import {BatchListItem} from './batch-list-item';
 import {IsDefined} from 'class-validator';
 import {Expose} from 'class-transformer';
+import {BatchReportUserMatchedListItem} from './batch-report-user-matched-list-item';
 
 export class BatchReportData {
 
@@ -61,9 +62,9 @@ export class BatchReportData {
 
   @IsDefined()
   @Expose()
-  public diffList: BatchListItem[];
+  public diffList: BatchReportUserMatchedListItem[];
 
   @IsDefined()
   @Expose()
-  public confirmedList: BatchListItem[];
+  public confirmedList: BatchReportUserMatchedListItem[];
 }
