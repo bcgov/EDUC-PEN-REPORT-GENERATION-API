@@ -3,6 +3,7 @@ import {ReportGenerationService} from './report-generation-service';
 import {Event} from '../struct/v1/event';
 import logger from '../components/logger';
 import {BatchReport} from '../struct/v1/batch/batch-report';
+import {plainToClass} from 'class-transformer';
 
 export class EventHandlerService {
 
@@ -27,7 +28,8 @@ export class EventHandlerService {
 
   public async handleGeneratePenRequestBatchReports(event: Event): Promise<Event> {
     try {
-      const reportData: BatchReport = event.eventPayload;
+      const reportData: BatchReport = plainToClass(BatchReport, event.eventPayload);
+      logger.debug(`EventPayload: ${event.eventPayload}`);
       logger.debug(`Report data from nats: ${JSON.stringify(reportData)}`);
       const generatedFileResponse = await this._reportGenerationService.generateReport(reportData);
       logger.info('Received response status', generatedFileResponse?.status);
