@@ -56,6 +56,7 @@ export class ReportGenerationService implements IReportGenerationService {
    * @param report
    */
   public async generateReport(report: Report<any>): Promise<AxiosResponse> {
+    logger.debug(`Converted to struct report data: ${JSON.stringify(report)}`);
     let hashFromRedis: string = await this.getTemplateHashFromRedis(report.reportType);
     const templatePath: string = path.join(__dirname, `../templates/${report.reportType.toString()}.docx`);
     let cachedKeyFromCdogs: string;
