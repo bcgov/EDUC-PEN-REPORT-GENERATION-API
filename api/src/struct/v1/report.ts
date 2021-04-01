@@ -1,4 +1,4 @@
-import {REPORT_EXTENSION, REPORT_TYPE} from '../../config/report-type';
+import {REPORT_TYPE} from '../../config/report-type';
 import {IsDefined} from 'class-validator';
 import {Expose} from 'class-transformer';
 
@@ -9,7 +9,7 @@ export class Report<T> {
 
   @IsDefined()
   @Expose()
-  public reportExtension: REPORT_EXTENSION;
+  public reportExtension: string;
 
   @IsDefined()
   @Expose()
