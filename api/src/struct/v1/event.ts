@@ -22,5 +22,5 @@ export class Event {
 
   @IsDefined()
   @Expose()
-  public eventPayload: Report;
+  public eventPayload: Report<any>;
 }
