@@ -28,6 +28,7 @@ export class EventHandlerService {
   public async handleGeneratePenRequestBatchReports(event: Event): Promise<Event> {
     try {
       const reportData: BatchReport = event.eventPayload;
+      logger.debug(`Report data from nats: ${JSON.stringify(reportData)}`);
       const generatedFileResponse = await this._reportGenerationService.generateReport(reportData);
       logger.info('Received response status', generatedFileResponse?.status);
       logger.info('Received response headers', generatedFileResponse?.headers);
