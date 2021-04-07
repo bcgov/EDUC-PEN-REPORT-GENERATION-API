@@ -1,7 +1,6 @@
 import { IsDefined } from 'class-validator';
 import { Expose } from 'class-transformer';
 import { EVENT_TYPES } from '../../constants/messaging';
-import {Report} from './report';
 
 export class Event {
   @IsDefined()
@@ -22,5 +21,5 @@ export class Event {
 
   @IsDefined()
   @Expose()
-  public eventPayload: Report<any>;
+  public eventPayload: string;
 }

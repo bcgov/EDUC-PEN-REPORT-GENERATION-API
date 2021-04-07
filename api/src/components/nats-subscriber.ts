@@ -21,8 +21,8 @@ export class NatsSubscriber {
     this._topics.forEach((topic: string) => {
       nats.subscribe(topic, opts, async (msg, reply, subject, sid) => {
         const event: Event = JSON.parse(msg);
-        logger.info(`Received message, on ${subject} , Subscription Id :: [${sid}], :: Reply to :: [${reply}], Data ::`, event);
-        const response: Event | any = await new EventHandlerService(this._reportGenerationService).handleEvent(event);
+        logger.info(`Received message, on ${subject} , Subscription Id :: [${sid}], :: Reply to :: [${event.replyTo}], Data ::`, event);
+        const response: Event = await new EventHandlerService(this._reportGenerationService).handleEvent(event);
         if (response) {
           if (reply) {
             nats.publish(reply, JSON.stringify(response));
