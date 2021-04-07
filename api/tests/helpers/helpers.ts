@@ -6,12 +6,8 @@ export function getGeneratePenRequestBatchReportsEvent(): string {
       '"eventOutcome": null,' +
       '"sagaId": "1",' +
       '"replyTo": "replyTopic",' +
-      '"eventPayload": {' +
-      '"reportType": "PEN_REG_BATCH_RESPONSE_REPORT",' +
-      '"reportExtension": "pdf",' +
-      '"data": { "reportDate": "2021-03-01"}' +
-      '}' +
-      '}';
+      '"eventPayload": "{\\"reportType\\": \\"PEN_REG_BATCH_RESPONSE_REPORT\\",\\"reportExtension\\": \\"pdf\\",' +
+      '\\"data\\": { \\"reportDate\\": \\"2021-03-01\\"}}"}';
 }
 export function getGeneratePenRequestBatchReportsResponseEvent(): string {
   return '{' +
