@@ -54,7 +54,7 @@ export class CdogsApiService implements ICdogsApiService {
         if (detail && detail.includes('File already cached')) {
           return detail.substring(27, detail.length - 2);
         } else {
-          logger.error(e);
+          logger.error(`error while calling ${url}`, e);
           throw e;
         }
       }
@@ -92,15 +92,16 @@ export class CdogsApiService implements ICdogsApiService {
         },
       };
       const reportBody = CdogsApiService.createPostBody(report);
+      const url = `${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template/${templateHash}/render`;
       if (!!formatter) {
         reportBody.formatters = formatter;
       }
       logger.silly(`request to cdogs ${JSON.stringify(reportBody)}`);
       try {
         return await axios
-          .post(`${Configuration.getConfig(CONFIG_ELEMENT.CDOGS_BASE_URL)}/api/v2/template/${templateHash}/render`, reportBody, config);
+          .post(url, reportBody, config);
       } catch (err) {
-        logger.error(err);
+        logger.error(`error while calling ${url}`, err);
         throw err;
       }
     }, {
