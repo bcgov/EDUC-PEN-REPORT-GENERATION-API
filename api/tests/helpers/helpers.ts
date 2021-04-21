@@ -14,7 +14,7 @@ export function getGeneratePenRequestBatchReportsResponseEvent(): string {
       '"eventType": "' + EVENT_TYPES.GENERATE_PEN_REQUEST_BATCH_REPORTS + '",' +
       '"sagaId": "1",' +
       '"replyTo": "replyTopic",' +
-      '"eventPayload": "' + getGeneratedReportResponse().data + '",' +
+      '"eventPayload": "' + Buffer.from(getGeneratedReportResponse().data).toString('base64') + '",' +
       '"eventOutcome": "' + EVENT_OUTCOMES.ARCHIVE_PEN_REQUEST_BATCH_REPORTS_GENERATED + '"' +
       '}';
 }
