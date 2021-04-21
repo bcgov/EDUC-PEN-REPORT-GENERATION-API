@@ -31,7 +31,7 @@ export class EventHandlerService {
       const reportData: BatchReport = JSON.parse(event.eventPayload);
       const generatedFileResponse: AxiosResponse = await this._reportGenerationService.generateReport(reportData);
       const responseEvent = event;
-      responseEvent.eventPayload = generatedFileResponse.data.toString();
+      responseEvent.eventPayload = Buffer.from(generatedFileResponse.data).toString('base64');
       responseEvent.eventOutcome = EVENT_OUTCOMES.ARCHIVE_PEN_REQUEST_BATCH_REPORTS_GENERATED;
       return responseEvent;
     } catch (e) {
