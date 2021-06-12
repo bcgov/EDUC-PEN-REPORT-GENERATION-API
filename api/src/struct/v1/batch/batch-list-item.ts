@@ -7,27 +7,46 @@ export class BatchListItem {
   @Expose()
   public pen: string;
 
+  @Expose()
+  public penDiff: string;
+
   @IsDefined()
   @Expose()
   public surname: string;
 
   @Expose()
+  public surnameDiff: string;
+
+  @Expose()
   public givenName: string;
 
   @Expose()
+  public givenNameDiff: string;
+
+  @Expose()
   public legalMiddleNames: string;
+
+  @Expose()
+  public legalMiddleNamesDiff: string;
 
   @IsDefined()
   @Expose()
   public birthDate: string;
 
-  @IsDefined()
+  @Expose()
+  public birthDateDiff: string;
+
   @Expose()
   public gender: string;
 
-  @IsDefined()
+  @Expose()
+  public genderDiff: string;
+
   @Expose()
   public schoolID: string;
+
+  @Expose()
+  public schoolIDDiff: string;
 
   @Expose()
   public usualName: string;

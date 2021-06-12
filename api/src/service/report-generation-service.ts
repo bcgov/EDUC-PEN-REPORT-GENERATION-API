@@ -7,6 +7,7 @@ import path from 'path';
 import {AxiosResponse} from 'axios';
 import {injectable, postConstruct} from 'inversify';
 import {IReportGenerationService} from './interfaces/i-report-generation-service';
+import {BatchReport} from '../struct/v1/batch/batch-report';
 
 /**
  * Singleton service class.
@@ -56,6 +57,9 @@ export class ReportGenerationService implements IReportGenerationService {
    * @param report
    */
   public async generateReport(report: Report<any>): Promise<AxiosResponse> {
+    if (report.reportType === REPORT_TYPE.prbResponseReport){
+      this.highlightDifferences(report as BatchReport);
+    }
     logger.debug(`Converted to struct report data: ${JSON.stringify(report)}`);
     logger.debug(`Converted to struct report data: ${JSON.stringify(report.reportType)}`);
     let hashFromRedis: string = await this.getTemplateHashFromRedis(report.reportType);
@@ -75,6 +79,32 @@ export class ReportGenerationService implements IReportGenerationService {
       }
     }
     return await this._cdogsApiService.generateReportFromTemplateHash(hashFromRedis, report);
+  }
+
+  private highlightDifferences(batchreport: BatchReport): void {
+    const batchArray = batchreport.data.diffList;
+
+    batchArray.forEach(batchItem => {
+      const school = batchItem.school;
+      const min = batchItem.min;
+
+      batchItem.min.penDiff = this.hasDifference(school.pen, min.pen);
+      batchItem.min.surnameDiff = this.hasDifference(school.surname, min.surname);
+      batchItem.min.givenNameDiff = this.hasDifference(school.givenName, min.givenName);
+      batchItem.min.legalMiddleNamesDiff = this.hasDifference(school.legalMiddleNames, min.legalMiddleNames);
+      batchItem.min.genderDiff = this.hasDifference(school.gender, min.gender);
+      batchItem.min.birthDateDiff = this.hasDifference(school.birthDate, min.birthDate);
+      batchItem.min.schoolIDDiff = this.hasDifference(school.schoolID, min.schoolID );
+
+      logger.silly('Batch Item: ' + JSON.stringify(batchItem));
+    });
+  }
+
+  private hasDifference(schoolVal: string, minVal: string): string {
+    if (schoolVal !== minVal){
+      return 'true';
+    }
+    return 'false';
   }
 
   // if there is hash in redis return that
