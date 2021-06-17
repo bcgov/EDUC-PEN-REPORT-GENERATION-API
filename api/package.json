@@ -78,7 +78,7 @@
     "has-ansi": "^4.0.0",
     "helmet": "^4.3.1",
     "inversify": "^5.0.5",
-    "ioredis": "^4.25.0",
+    "ioredis": "^4.27.6",
     "jet-logger": "^1.0.4",
     "jose": "^3.5.1",
     "jsonfile": "^6.1.0",
