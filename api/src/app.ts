@@ -12,7 +12,6 @@ import {ErrorHandlerMiddleware} from './middleware/error-handler-middleware';
 import {ReportGenerationController} from './controllers/v1/report-generation-controller';
 import {CONFIG_ELEMENT} from './config/config-element';
 import {HealthCheckController} from './controllers/health-check';
-import expressStatusMonitor = require('express-status-monitor');
 import {iocContainer} from './config/inversify.config';
 
 export class App {
@@ -21,7 +20,6 @@ export class App {
   public constructor() {
     this.expressApplication = express();
     this.expressApplication.set('trust proxy', 1);
-    this.expressApplication.use(expressStatusMonitor({path: '/api/status'}));
     this.expressApplication.use(compression());
     this.expressApplication.use(cors());
     this.expressApplication.use(helmet());
