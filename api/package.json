@@ -10,7 +10,7 @@
   "scripts": {
     "build": "ts-node build.ts",
     "lint": "eslint . --no-fix --ignore-pattern 'node_modules' --ext .ts",
-    "start": "node --max-old-space-size=100 -r module-alias/register ./dist/src/report-generation-application.js",
+    "start": "node --max-old-space-size=250 -r module-alias/register ./dist/src/report-generation-application.js",
     "start:dev": "nodemon",
     "lint:fix": "eslint . --fix --ignore-pattern 'node_modules' --ext .ts",
     "clean": "ts-node clean.ts",
