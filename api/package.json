@@ -25,7 +25,7 @@
     "ignore": [
       "src/public"
     ],
-    "exec": "node  --max-old-space-size=260 -- node_modules/ts-node/dist/bin -P tsconfig.json ./src/report-generation-application.ts --NODE_ENV=local"
+    "exec": "node --max-old-space-size=260 -- node_modules/ts-node/dist/bin -P tsconfig.json ./src/report-generation-application.ts --NODE_ENV=local"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
