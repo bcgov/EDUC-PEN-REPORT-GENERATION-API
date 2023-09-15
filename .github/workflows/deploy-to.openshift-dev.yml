@@ -97,6 +97,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
+#DEBUG::: REMOVE TODO
+      - name: List directory contents
+        run: |
+          ls -R
+
       - name: Determine image tags
         if: env.IMAGE_TAGS == ''
         run: |
