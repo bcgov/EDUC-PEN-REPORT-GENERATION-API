@@ -97,11 +97,6 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-#DEBUG::: REMOVE TODO
-      - name: List directory contents
-        run: |
-          ls -R
-
       - name: Determine image tags
         if: env.IMAGE_TAGS == ''
         run: |
@@ -126,6 +121,7 @@ jobs:
           # Otherwise, point this to your Dockerfile/Containerfile relative to the repository root.
           dockerfiles: |
             ./api/Dockerfile
+          context: ./api
       # https://github.com/redhat-actions/push-to-registry#readme
       - name: Push to registry
         id: push-image
