@@ -2,11 +2,7 @@ envValue=$1
 APP_NAME=$2
 PEN_NAMESPACE=$3
 COMMON_NAMESPACE=$4
-SPLUNK_TOKEN=$5
-CDOGS_CLIENT_ID=$6
-CDOGS_CLIENT_SECRET=$7
-CDOGS_TOKEN_ENDPOINT=$8
-CDOGS_BASE_URL=$9
+APP_NAME_UPPER=${APP_NAME^^}
 
 TZVALUE="America/Vancouver"
 SOAM_KC_REALM_ID="master"
@@ -34,6 +30,11 @@ curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scope
 ###########################################################
 #Setup for student-admin-flb-sc-config-map
 ###########################################################
+CDOGS_CLIENT_ID=$(oc -n "$PEN_NAMESPACE-$envValue" -o json get configmaps "${APP_NAME}-${envValue}"-setup-config | sed -n "s/.*\"CDOGS_CLIENT_ID\": \"\(.*\)\",/\1/p")
+CDOGS_CLIENT_SECRET=$(oc -n "$PEN_NAMESPACE-$envValue" -o json get configmaps "${APP_NAME}-${envValue}"-setup-config | sed -n "s/.*\"CDOGS_CLIENT_SECRET\": \"\(.*\)\",/\1/p")
+CDOGS_TOKEN_ENDPOINT=$(oc -n "$PEN_NAMESPACE-$envValue" -o json get configmaps "${APP_NAME}-${envValue}"-setup-config | sed -n "s/.*\"CDOGS_TOKEN_ENDPOINT\": \"\(.*\)\",/\1/p")
+CDOGS_BASE_URL=$(oc -n "$PEN_NAMESPACE-$envValue" -o json get configmaps "${APP_NAME}-${envValue}"-setup-config | sed -n "s/.*\"CDOGS_BASE_URL\": \"\(.*\)\",/\1/p")
+SPLUNK_TOKEN=$(oc -n "$PEN_NAMESPACE-$envValue" -o json get configmaps "${APP_NAME}-${envValue}-setup-config" | sed -n "s/.*\"SPLUNK_TOKEN_${APP_NAME_UPPER}\": \"\(.*\)\"/\1/p")
 
 SPLUNK_URL="gww.splunk.educ.gov.bc.ca"
 FLB_CONFIG="[SERVICE]

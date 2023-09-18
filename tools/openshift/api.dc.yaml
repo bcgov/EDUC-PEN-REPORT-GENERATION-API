@@ -13,13 +13,13 @@ objects:
       openshift.io/generated-by: OpenShiftNewApp
     creationTimestamp:
     labels:
-      app: "${APP_NAME}-${BRANCH}"
-    name: "${APP_NAME}-${BRANCH}"
+      app: "${APP_NAME}-${JOB_NAME}"
+    name: "${APP_NAME}-${JOB_NAME}"
   spec:
     replicas: ${{MIN_REPLICAS}}
     selector:
-      app: "${APP_NAME}-${BRANCH}"
-      deploymentconfig: "${APP_NAME}-${BRANCH}"
+      app: "${APP_NAME}-${JOB_NAME}"
+      deploymentconfig: "${APP_NAME}-${JOB_NAME}"
     strategy:
       resources: {}
       type: Rolling
@@ -29,11 +29,11 @@ objects:
           openshift.io/generated-by: OpenShiftNewApp
         creationTimestamp:
         labels:
-          app: "${APP_NAME}-${BRANCH}"
-          deploymentconfig: "${APP_NAME}-${BRANCH}"
+          app: "${APP_NAME}-${JOB_NAME}"
+          deploymentconfig: "${APP_NAME}-${JOB_NAME}"
       spec:
         containers:
-        - image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}-${BRANCH}:${TAG}
+        - image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}-${JOB_NAME}:${TAG}
           imagePullPolicy: Always
           volumeMounts:
           - name: tls-certs
@@ -51,7 +51,7 @@ objects:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 5
-          name: "${APP_NAME}-${BRANCH}"
+          name: "${APP_NAME}-${JOB_NAME}"
           ports:
           - containerPort: 3000
             protocol: TCP
@@ -75,7 +75,7 @@ objects:
               cpu: "${MAX_CPU}"
               memory: "${MAX_MEM}"
         - image: artifacts.developer.gov.bc.ca/docker-remote/fluent/fluent-bit:1.5.7
-          name: "${APP_NAME}-${BRANCH}-fluent-bit-sidecar"
+          name: "${APP_NAME}-${JOB_NAME}-fluent-bit-sidecar"
           imagePullPolicy: Always
           imagePullSecrets:
             - name: artifactory-creds
@@ -132,8 +132,8 @@ objects:
       service.alpha.openshift.io/serving-cert-secret-name: "pen-report-generation-api-cert"
     creationTimestamp:
     labels:
-      app: "${APP_NAME}-${BRANCH}"
-    name: "${APP_NAME}-${BRANCH}"
+      app: "${APP_NAME}-${JOB_NAME}"
+    name: "${APP_NAME}-${JOB_NAME}"
   spec:
     ports:
     - name: 3000-tcp
@@ -145,17 +145,17 @@ objects:
       protocol: TCP
       targetPort: 443
     selector:
-      app: "${APP_NAME}-${BRANCH}"
-      deploymentconfig: "${APP_NAME}-${BRANCH}"
+      app: "${APP_NAME}-${JOB_NAME}"
+      deploymentconfig: "${APP_NAME}-${JOB_NAME}"
 - apiVersion: autoscaling/v2
   kind: HorizontalPodAutoscaler
   metadata:
-    name: "${APP_NAME}-${BRANCH}-cpu-auto-scale"
+    name: "${APP_NAME}-${JOB_NAME}-cpu-auto-scale"
   spec:
     scaleTargetRef:
       apiVersion: apps.openshift.io/v1
       kind: DeploymentConfig
-      name: "${APP_NAME}-backend-${BRANCH}"
+      name: "${APP_NAME}-backend-${JOB_NAME}"
       subresource: scale
     minReplicas: ${{MIN_REPLICAS}}
     maxReplicas: ${{MAX_REPLICAS}}
@@ -170,7 +170,7 @@ parameters:
 - name: REPO_NAME
   description: Application repository name
   required: true
-- name: BRANCH
+- name: JOB_NAME
   description: Job identifier (i.e. 'pr-5' OR 'master')
   required: true
 - name: NAMESPACE
@@ -181,7 +181,7 @@ parameters:
   required: true
 - name: HOST_ROUTE
   description: The host the route will use to expose service outside cluster
-  required: false
+  required: true
 - name: TAG
   description: The identifying tag for this specific deployment
   required: true
