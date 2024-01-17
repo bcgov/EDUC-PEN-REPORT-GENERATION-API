@@ -1,6 +1,9 @@
 FROM artifacts.developer.gov.bc.ca/docker-remote/node:lts-alpine3.13
 
 ENV npm_config_cache /tmp/npm
+RUN mkdir -p /tmp/npm \
+    && chmod -R 777 /tmp/npm
+
 RUN mkdir -p /logs
 RUN chmod 755 /logs
 
