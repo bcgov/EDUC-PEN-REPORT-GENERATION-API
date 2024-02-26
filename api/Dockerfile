@@ -11,4 +11,4 @@ RUN npm ci
 COPY . /api
 RUN npm run build
 EXPOSE 443 3000
-CMD ["node", "--max-old-space-size=250", "-r module-alias/register", "./dist/src/report-generation-application.js"]
+CMD ["node", "--max-old-space-size=250", "-r", "module-alias/register", "./dist/src/report-generation-application.js"]
