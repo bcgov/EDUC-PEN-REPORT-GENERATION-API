@@ -1,4 +1,5 @@
-FROM artifacts.developer.gov.bc.ca/docker-remote/node:lts-alpine3.13
+FROM artifacts.developer.gov.bc.ca/docker-remote/node:22.23.4-alpine3.23
+RUN apk upgrade --no-cache
 
 RUN mkdir -p /logs
 RUN chmod 755 /logs
